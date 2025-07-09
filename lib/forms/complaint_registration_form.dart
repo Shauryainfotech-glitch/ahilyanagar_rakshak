@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ComplaintRegistrationForm extends StatefulWidget {
+  const ComplaintRegistrationForm({super.key});
+
   @override
   _ComplaintRegistrationFormState createState() => _ComplaintRegistrationFormState();
 }

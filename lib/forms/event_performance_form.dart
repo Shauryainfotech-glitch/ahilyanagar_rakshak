@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class EventPerformanceForm extends StatefulWidget {
+  const EventPerformanceForm({super.key});
+
   @override
   _EventPerformanceFormState createState() => _EventPerformanceFormState();
 }

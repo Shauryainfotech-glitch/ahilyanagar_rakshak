@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ArrestSearchForm extends StatefulWidget {
+  const ArrestSearchForm({super.key});
+
   @override
   _ArrestSearchFormState createState() => _ArrestSearchFormState();
 }

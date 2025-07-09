@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class PlaceholderForm extends StatelessWidget {
   final String serviceName;
-  const PlaceholderForm({required this.serviceName});
+  const PlaceholderForm({super.key, required this.serviceName});
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class LockedHouseInfoForm extends StatelessWidget {
+  const LockedHouseInfoForm({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

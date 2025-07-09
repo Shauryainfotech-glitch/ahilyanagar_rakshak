@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 class SOSButton extends StatefulWidget {
   final bool isEnabled;
   final Duration disabledDuration;
-  const SOSButton({Key? key, this.isEnabled = true, this.disabledDuration = const Duration(seconds: 10)}) : super(key: key);
+  const SOSButton({super.key, this.isEnabled = true, this.disabledDuration = const Duration(seconds: 10)});
 
   @override
   State<SOSButton> createState() => _SOSButtonState();

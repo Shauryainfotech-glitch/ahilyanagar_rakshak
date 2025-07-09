@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SingleWomenLivingAloneForm extends StatelessWidget {
+  const SingleWomenLivingAloneForm({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

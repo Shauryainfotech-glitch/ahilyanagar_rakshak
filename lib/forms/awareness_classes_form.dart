@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AwarenessClassesForm extends StatefulWidget {
+  const AwarenessClassesForm({super.key});
+
   @override
   _AwarenessClassesFormState createState() => _AwarenessClassesFormState();
 }
@@ -271,7 +273,7 @@ class _AwarenessClassesFormState extends State<AwarenessClassesForm> {
                     'Financial Fraud Prevention',
                     'Other'
                   ].map((topic) => DropdownMenuItem(value: topic, child: Text(topic))).toList(),
-                  onChanged: (value) => setState(() => this.topic = value),
+                  onChanged: (value) => setState(() => topic = value),
                   validator: (value) => value == null ? 'Please select awareness topic' : null,
                 ),
                 SizedBox(height: 16),

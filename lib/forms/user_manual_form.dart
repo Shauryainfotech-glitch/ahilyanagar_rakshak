@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class UserManualForm extends StatefulWidget {
+  const UserManualForm({super.key});
+
   @override
   _UserManualFormState createState() => _UserManualFormState();
 }

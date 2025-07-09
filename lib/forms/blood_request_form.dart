@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class BloodRequestForm extends StatefulWidget {
+  const BloodRequestForm({super.key});
+
   @override
   _BloodRequestFormState createState() => _BloodRequestFormState();
 }
@@ -260,7 +262,7 @@ class _BloodRequestFormState extends State<BloodRequestForm> {
                     'Normal - Within 48 hours',
                     'Planned - Within a week'
                   ].map((urgency) => DropdownMenuItem(value: urgency, child: Text(urgency))).toList(),
-                  onChanged: (value) => setState(() => this.urgency = value),
+                  onChanged: (value) => setState(() => urgency = value),
                   validator: (value) => value == null ? 'Please select urgency level' : null,
                 ),
                 SizedBox(height: 16),

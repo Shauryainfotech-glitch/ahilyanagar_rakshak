@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MikeSanctionRegistrationForm extends StatefulWidget {
+  const MikeSanctionRegistrationForm({super.key});
+
   @override
   _MikeSanctionRegistrationFormState createState() => _MikeSanctionRegistrationFormState();
 }

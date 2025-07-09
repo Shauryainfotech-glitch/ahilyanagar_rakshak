@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 
 class NewsSection extends StatefulWidget {
+  const NewsSection({super.key});
+
   @override
   _NewsSectionState createState() => _NewsSectionState();
 }
@@ -192,7 +194,7 @@ class _NewsCard extends StatelessWidget {
 
 class NewsDetailPage extends StatelessWidget {
   final Map<String, dynamic> news;
-  const NewsDetailPage({required this.news});
+  const NewsDetailPage({super.key, required this.news});
 
   @override
   Widget build(BuildContext context) {

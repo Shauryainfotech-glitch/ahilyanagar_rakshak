@@ -43,6 +43,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -197,6 +199,8 @@ class MyApp extends StatelessWidget {
 }
 
 class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
+
   @override
   State<MainNavigation> createState() => _MainNavigationState();
 }
@@ -263,7 +267,7 @@ class _MainNavigationState extends State<MainNavigation>
           ],
         ),
         child: SafeArea(
-          child: Container(
+          child: SizedBox(
             height: 80,
             child: Stack(
               children: [
@@ -347,7 +351,7 @@ class _MainNavigationState extends State<MainNavigation>
 
 // Profile Page Wrapper to avoid nested Scaffold issues
 class ProfilePageWrapper extends StatelessWidget {
-  const ProfilePageWrapper({Key? key}) : super(key: key);
+  const ProfilePageWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -368,7 +372,7 @@ class ProfilePageWrapper extends StatelessWidget {
 
 // Profile Page Content without Scaffold
 class ProfilePageContent extends StatefulWidget {
-  const ProfilePageContent({Key? key}) : super(key: key);
+  const ProfilePageContent({super.key});
 
   @override
   _ProfilePageContentState createState() => _ProfilePageContentState();
@@ -676,7 +680,7 @@ class _ProfilePageContentState extends State<ProfilePageContent> with TickerProv
           ),
           const SizedBox(height: 20),
           // Tab Content
-          Container(
+          SizedBox(
             height: 400, // Fixed height to prevent layout issues
             child: TabBarView(
               controller: _tabController,
@@ -974,7 +978,7 @@ class _ProfilePageContentState extends State<ProfilePageContent> with TickerProv
 
 // Modern App Header for HomePage
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -1554,7 +1558,7 @@ class _ContactIcon extends StatelessWidget {
 }
 
 class ServicesPage extends StatelessWidget {
-  const ServicesPage({Key? key}) : super(key: key);
+  const ServicesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -1647,351 +1651,250 @@ class ServicesPage extends StatelessWidget {
 
 // This widget is the attractive services UI body for the ServicesPage
 class ServicesPageBody extends StatelessWidget {
-  const ServicesPageBody({Key? key}) : super(key: key);
+  const ServicesPageBody({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _ServiceSection(
-          icon: Icons.account_balance_rounded,
-          color: const Color(0xFF3F51B5),
-          title: 'Thuna Service',
-          subtitle: 'Official police services',
-          children: [
-            ServiceForm(title: 'Complaint Registration', icon: Icons.report_problem_rounded),
-            ServiceForm(title: 'Mike Sanction Registration', icon: Icons.mic_rounded),
-            ServiceForm(title: 'FIR Download', icon: Icons.download_rounded),
-            ServiceForm(title: 'Accident GD', icon: Icons.car_crash_rounded),
-            ServiceForm(title: 'Lost Property', icon: Icons.search_rounded),
-            ServiceForm(title: 'Payment History', icon: Icons.payment_rounded),
-            ServiceForm(title: 'Event Performance', icon: Icons.event_rounded),
-            ServiceForm(title: 'Grievance Redressal', icon: Icons.feedback_rounded),
-            ServiceForm(title: 'Arrest Search', icon: Icons.person_search_rounded),
-            ServiceForm(title: 'Feedback', icon: Icons.rate_review_rounded),
-          ],
-        ),
-        _ServiceSection(
-          icon: Icons.bloodtype_rounded,
-          color: const Color(0xFFE91E63),
-          title: 'Pol-Blood Service',
-          subtitle: 'Blood donation and requests',
-          children: [
-            ServiceForm(title: 'Blood Donor', icon: Icons.favorite_rounded),
-            ServiceForm(title: 'Blood Request', icon: Icons.bloodtype_rounded),
-          ],
-        ),
-        _ServiceSection(
-          icon: Icons.security_rounded,
-          color: const Color(0xFF4CAF50),
-          title: 'Citizen Safety Service',
-          subtitle: 'Personal safety features',
-          children: [
-            ServiceForm(title: 'Track My Trip', icon: Icons.location_on_rounded),
-            ServiceForm(title: 'Locked House Information', icon: Icons.home_rounded),
-            ServiceForm(title: 'Senior Citizen Information', icon: Icons.elderly_rounded),
-            ServiceForm(title: 'Single Women Living Alone', icon: Icons.woman_rounded),
-          ],
-        ),
-        _ServiceSection(
-          icon: Icons.report_problem_rounded,
-          color: const Color(0xFFFF9800),
-          title: 'Report an Offence',
-          subtitle: 'Report crimes and incidents',
-          children: [
-            ServiceForm(title: 'Report Abduction', icon: Icons.person_off_rounded),
-            ServiceForm(title: 'Report Cyber Fraud', icon: Icons.computer_rounded),
-            ServiceForm(title: 'Share Information', icon: Icons.share_rounded),
-          ],
-        ),
-        _ServiceSection(
-          icon: Icons.event_rounded,
-          color: const Color(0xFF9C27B0),
-          title: 'Appointment & Search',
-          subtitle: 'Schedule and find services',
-          children: [
-            ServiceForm(title: 'Appointment with SHO', icon: Icons.calendar_today_rounded),
-            ServiceForm(title: 'Search Police Station', icon: Icons.location_city_rounded),
-          ],
-        ),
-        _ServiceSection(
-          icon: Icons.tips_and_updates_rounded,
-          color: const Color(0xFF00BCD4),
-          title: 'Internet Tips',
-          subtitle: 'Cyber safety and guidance',
-          children: [
-            ServiceForm(title: 'Cyber Security Information', icon: Icons.security_rounded),
-            ServiceForm(title: 'Tourist Guide', icon: Icons.tour_rounded),
-            ServiceForm(title: 'User Manual', icon: Icons.menu_book_rounded),
-            ServiceForm(title: 'Awareness Classes', icon: Icons.school_rounded),
-          ],
-        ),
-        _ServiceSection(
-          icon: Icons.star_rounded,
-          color: const Color(0xFFFFD700),
-          title: 'Rate',
-          subtitle: 'Rate our services',
-          children: [
-            ServiceForm(title: 'Rate Police Station', icon: Icons.location_city_rounded),
-            ServiceForm(title: 'Rate Application', icon: Icons.rate_review_rounded),
-          ],
-        ),
-        _ServiceSection(
-          icon: Icons.link_rounded,
-          color: const Color(0xFF607D8B),
-          title: 'Web Links',
-          subtitle: 'External resources',
-          children: [
-            ServiceForm(title: 'Social Media of Police', icon: Icons.share_rounded),
-            ServiceForm(title: 'Maharashtra Government', icon: Icons.account_balance_rounded),
-            ServiceForm(title: 'Ahilyanagar Police', icon: Icons.local_police_rounded),
-            ServiceForm(title: 'Cyber Done', icon: Icons.computer_rounded),
-          ],
-        ),
-        _ServiceSection(
-          icon: Icons.smart_toy_rounded,
-          color: const Color(0xFF64B5F6),
-          title: 'AI Assistant',
-          subtitle: '24/7 Police Chatbot',
-          children: [
-            ServiceForm(title: 'Police Chatbot', icon: Icons.chat_bubble_rounded),
-          ],
-        ),
-      ],
+    final sections = [
+      SectionData(
+        icon: Icons.account_balance_rounded,
+        color: const Color(0xFF3F51B5),
+        title: 'Thuna Service',
+        subtitle: 'Official police services',
+        children: [
+          ServiceForm(title: 'Complaint Registration', icon: Icons.report_problem_rounded),
+          ServiceForm(title: 'Mike Sanction Registration', icon: Icons.mic_rounded),
+          ServiceForm(title: 'FIR Download', icon: Icons.download_rounded),
+          ServiceForm(title: 'Accident GD', icon: Icons.car_crash_rounded),
+          ServiceForm(title: 'Lost Property', icon: Icons.search_rounded),
+          ServiceForm(title: 'Payment History', icon: Icons.payment_rounded),
+          ServiceForm(title: 'Event Performance', icon: Icons.event_rounded),
+          ServiceForm(title: 'Grievance Redressal', icon: Icons.feedback_rounded),
+          ServiceForm(title: 'Arrest Search', icon: Icons.person_search_rounded),
+          ServiceForm(title: 'Feedback', icon: Icons.rate_review_rounded),
+        ],
+      ),
+      SectionData(
+        icon: Icons.bloodtype_rounded,
+        color: const Color(0xFFE91E63),
+        title: 'Pol-Blood Service',
+        subtitle: 'Blood donation and requests',
+        children: [
+          ServiceForm(title: 'Blood Donor', icon: Icons.favorite_rounded),
+          ServiceForm(title: 'Blood Request', icon: Icons.bloodtype_rounded),
+        ],
+      ),
+      SectionData(
+        icon: Icons.security_rounded,
+        color: const Color(0xFF4CAF50),
+        title: 'Citizen Safety Service',
+        subtitle: 'Personal safety features',
+        children: [
+          ServiceForm(title: 'Track My Trip', icon: Icons.location_on_rounded),
+          ServiceForm(title: 'Locked House Information', icon: Icons.home_rounded),
+          ServiceForm(title: 'Senior Citizen Information', icon: Icons.elderly_rounded),
+          ServiceForm(title: 'Single Women Living Alone', icon: Icons.woman_rounded),
+        ],
+      ),
+      SectionData(
+        icon: Icons.report_problem_rounded,
+        color: const Color(0xFFFF9800),
+        title: 'Report an Offence',
+        subtitle: 'Report crimes and incidents',
+        children: [
+          ServiceForm(title: 'Report Abduction', icon: Icons.person_off_rounded),
+          ServiceForm(title: 'Report Cyber Fraud', icon: Icons.computer_rounded),
+          ServiceForm(title: 'Share Information', icon: Icons.share_rounded),
+        ],
+      ),
+      SectionData(
+        icon: Icons.event_rounded,
+        color: const Color(0xFF9C27B0),
+        title: 'Appointment & Search',
+        subtitle: 'Schedule and find services',
+        children: [
+          ServiceForm(title: 'Appointment with SHO', icon: Icons.calendar_today_rounded),
+          ServiceForm(title: 'Search Police Station', icon: Icons.location_city_rounded),
+        ],
+      ),
+      SectionData(
+        icon: Icons.tips_and_updates_rounded,
+        color: const Color(0xFF00BCD4),
+        title: 'Internet Tips',
+        subtitle: 'Cyber safety and guidance',
+        children: [
+          ServiceForm(title: 'Cyber Security Information', icon: Icons.security_rounded),
+          ServiceForm(title: 'Tourist Guide', icon: Icons.tour_rounded),
+          ServiceForm(title: 'User Manual', icon: Icons.menu_book_rounded),
+          ServiceForm(title: 'Awareness Classes', icon: Icons.school_rounded),
+        ],
+      ),
+      SectionData(
+        icon: Icons.star_rounded,
+        color: const Color(0xFFFFD700),
+        title: 'Rate',
+        subtitle: 'Rate our services',
+        children: [
+          ServiceForm(title: 'Rate Police Station', icon: Icons.location_city_rounded),
+          ServiceForm(title: 'Rate Application', icon: Icons.rate_review_rounded),
+        ],
+      ),
+      SectionData(
+        icon: Icons.link_rounded,
+        color: const Color(0xFF607D8B),
+        title: 'Web Links',
+        subtitle: 'External resources',
+        children: [
+          ServiceForm(title: 'Social Media of Police', icon: Icons.share_rounded),
+          ServiceForm(title: 'Maharashtra Government', icon: Icons.account_balance_rounded),
+          ServiceForm(title: 'Ahilyanagar Police', icon: Icons.local_police_rounded),
+          ServiceForm(title: 'Cyber Done', icon: Icons.computer_rounded),
+        ],
+      ),
+      SectionData(
+        icon: Icons.smart_toy_rounded,
+        color: const Color(0xFF64B5F6),
+        title: 'AI Assistant',
+        subtitle: '24/7 Police Chatbot',
+        children: [
+          ServiceForm(title: 'Police Chatbot', icon: Icons.chat_bubble_rounded),
+        ],
+      ),
+    ];
+
+    return GridView.count(
+      crossAxisCount: 3,
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      padding: const EdgeInsets.all(14),
+      childAspectRatio: 0.8,
+      shrinkWrap: true,
+      physics: AlwaysScrollableScrollPhysics(),
+      clipBehavior: Clip.hardEdge,
+      children: sections.map((section) => SectionCard(section: section)).toList(),
     );
   }
 }
 
-class _ServiceSection extends StatelessWidget {
+class SectionData {
   final IconData icon;
   final Color color;
   final String title;
   final String subtitle;
-  final List<ServiceForm> children;
+  final List<Widget> children;
 
-  const _ServiceSection({
+  SectionData({
     required this.icon,
     required this.color,
     required this.title,
     required this.subtitle,
     required this.children,
   });
+}
+
+class SectionCard extends StatelessWidget {
+  final SectionData section;
+  const SectionCard({super.key, required this.section});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF1E2337), Color(0xFF2A2F45)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 15,
-            offset: Offset(0, 5),
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SectionDetailsPage(section: section),
           ),
-        ],
-      ),
-      child: Theme(
-        data: Theme.of(context).copyWith(
-          dividerColor: Colors.transparent,
-        ),
-        child: ExpansionTile(
-          leading: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [color, color.withAlpha((0.7 * 255).toInt())],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withAlpha((0.3 * 255).toInt()),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [section.color.withOpacity(0.8), section.color.withOpacity(0.6)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: section.color.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white70,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ),
-          iconColor: color,
-          collapsedIconColor: color,
-          backgroundColor: Colors.transparent,
-          collapsedBackgroundColor: Colors.transparent,
-          children: children,
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(section.icon, color: Colors.white, size: 36),
+            const SizedBox(height: 12),
+            Text(
+              section.title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class ServiceForm extends StatelessWidget {
-  final String title;
-  final IconData icon;
-
-  const ServiceForm({required this.title, required this.icon});
-
-  void _navigateToForm(BuildContext context) {
-    // Map service titles to their corresponding form routes
-    final Map<String, String> serviceRoutes = {
-      'Complaint Registration': '/complaint_registration',
-      'Mike Sanction Registration': '/mike_sanction_registration',
-      'FIR Download': '/fir_download',
-      'Accident GD': '/accident_gd',
-      'Lost Property': '/lost_property',
-      'Payment History': '/payment_history',
-      'Event Performance': '/event_performance',
-      'Grievance Redressal': '/grievance_redressal',
-      'Arrest Search': '/arrest_search',
-      'Feedback': '/feedback',
-      'Blood Donor': '/blood_donor',
-      'Blood Request': '/blood_request',
-      'Track My Trip': '/track_my_trip',
-      'Locked House Information': '/locked_house_info',
-      'Senior Citizen Information': '/senior_citizen_info',
-      'Single Women Living Alone': '/single_women_living_alone',
-      'Report Abduction': '/report_abduction',
-      'Report Cyber Fraud': '/report_cyber_fraud',
-      'Share Information': '/share_information',
-      'Appointment with SHO': '/appointment_with_sho',
-      'Search Police Station': '/search_police_station',
-      'Cyber Security Information': '/cyber_security_info',
-      'Tourist Guide': '/tourist_guide',
-      'User Manual': '/user_manual',
-      'Awareness Classes': '/awareness_classes',
-      'Rate Police Station': '/rate_police_station',
-      'Rate Application': '/rate_application',
-      'Social Media of Police': '/social_media_of_police',
-      'Maharashtra Government': '/maharashtra_government',
-      'Ahilyanagar Police': '/ahilyanagar_police',
-      'Cyber Done': '/cyber_done',
-      'Police Chatbot': '/chatbot',
-    };
-
-    final route = serviceRoutes[title];
-    if (route != null) {
-      Navigator.pushNamed(context, route);
-    } else {
-      // Show a snackbar if the form is not yet implemented
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.info_outline_rounded, color: Colors.white),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Form for "$title" is coming soon!',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: const Color(0xFF3F51B5),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.all(16),
-        ),
-      );
-    }
-  }
+class SectionDetailsPage extends StatelessWidget {
+  final SectionData section;
+  const SectionDetailsPage({super.key, required this.section});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2A2F45),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withAlpha((0.1 * 255).toInt())),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF23284A),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: section.color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(section.icon, color: section.color, size: 26),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    section.title,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  Text(
+                    section.subtitle,
+                    style: const TextStyle(fontSize: 13, color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF3F51B5).withAlpha((0.1 * 255).toInt()),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: const Color(0xFF64B5F6), size: 20),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-        trailing: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
-              begin: Alignment.centerLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0xFF3F51B5),
-                blurRadius: 8,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: ElevatedButton(
-            onPressed: () => _navigateToForm(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            ),
-            child: const Text(
-              'Access',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
-              ),
-            ),
-          ),
-        ),
+      backgroundColor: const Color(0xFF23284A),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        children: section.children,
       ),
     );
   }
 }
 
 class ContactPage extends StatefulWidget {
-  const ContactPage({Key? key}) : super(key: key);
+  const ContactPage({super.key});
 
   @override
   _ContactPageState createState() => _ContactPageState();
@@ -2382,7 +2285,7 @@ class _HelplineList extends StatelessWidget {
 }
 
 class _EmergencySection extends StatelessWidget {
-  const _EmergencySection({Key? key}) : super(key: key);
+  const _EmergencySection();
 
   @override
   Widget build(BuildContext context) {
@@ -2608,6 +2511,142 @@ class _EmergencyContactCard extends StatelessWidget {
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
                 fontSize: 14,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ServiceForm extends StatelessWidget {
+  final String title;
+  final IconData icon;
+
+  const ServiceForm({super.key, required this.title, required this.icon});
+
+  void _navigateToForm(BuildContext context) {
+    // Map service titles to their corresponding form routes
+    final Map<String, String> serviceRoutes = {
+      'Complaint Registration': '/complaint_registration',
+      'Mike Sanction Registration': '/mike_sanction_registration',
+      'FIR Download': '/fir_download',
+      'Accident GD': '/accident_gd',
+      'Lost Property': '/lost_property',
+      'Payment History': '/payment_history',
+      'Event Performance': '/event_performance',
+      'Grievance Redressal': '/grievance_redressal',
+      'Arrest Search': '/arrest_search',
+      'Feedback': '/feedback',
+      'Blood Donor': '/blood_donor',
+      'Blood Request': '/blood_request',
+      'Track My Trip': '/track_my_trip',
+      'Locked House Information': '/locked_house_info',
+      'Senior Citizen Information': '/senior_citizen_info',
+      'Single Women Living Alone': '/single_women_living_alone',
+      'Report Abduction': '/report_abduction',
+      'Report Cyber Fraud': '/report_cyber_fraud',
+      'Share Information': '/share_information',
+      'Appointment with SHO': '/appointment_with_sho',
+      'Search Police Station': '/search_police_station',
+      'Cyber Security Information': '/cyber_security_info',
+      'Tourist Guide': '/tourist_guide',
+      'User Manual': '/user_manual',
+      'Awareness Classes': '/awareness_classes',
+      'Rate Police Station': '/rate_police_station',
+      'Rate Application': '/rate_application',
+      'Social Media of Police': '/social_media_of_police',
+      'Maharashtra Government': '/maharashtra_government',
+      'Ahilyanagar Police': '/ahilyanagar_police',
+      'Cyber Done': '/cyber_done',
+      'Police Chatbot': '/chatbot',
+    };
+
+    final route = serviceRoutes[title];
+    if (route != null) {
+      Navigator.pushNamed(context, route);
+    } else {
+      // Show a snackbar if the form is not yet implemented
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.info_outline_rounded, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Form for "$title" is coming soon!',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFF3F51B5),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2F45),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withAlpha((0.1 * 255).toInt())),
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF3F51B5).withAlpha((0.1 * 255).toInt()),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: const Color(0xFF64B5F6), size: 20),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        trailing: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
+              begin: Alignment.centerLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0xFF3F51B5),
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: () => _navigateToForm(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+            child: const Text(
+              'Access',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
               ),
             ),
           ),

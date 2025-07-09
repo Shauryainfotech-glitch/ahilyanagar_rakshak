@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PaymentHistoryForm extends StatefulWidget {
+  const PaymentHistoryForm({super.key});
+
   @override
   _PaymentHistoryFormState createState() => _PaymentHistoryFormState();
 }

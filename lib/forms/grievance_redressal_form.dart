@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class GrievanceRedressalForm extends StatefulWidget {
+  const GrievanceRedressalForm({super.key});
+
   @override
   _GrievanceRedressalFormState createState() => _GrievanceRedressalFormState();
 }

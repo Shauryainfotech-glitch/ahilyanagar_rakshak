@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class LostPropertyForm extends StatefulWidget {
+  const LostPropertyForm({super.key});
+
   @override
   _LostPropertyFormState createState() => _LostPropertyFormState();
 }

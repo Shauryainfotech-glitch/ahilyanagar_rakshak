@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ChatbotScreen extends StatefulWidget {
+  const ChatbotScreen({super.key});
+
   @override
   _ChatbotScreenState createState() => _ChatbotScreenState();
 }
@@ -664,6 +664,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
 
 // Floating Chatbot Button Widget
 class ChatbotFAB extends StatefulWidget {
+  const ChatbotFAB({super.key});
+
   @override
   _ChatbotFABState createState() => _ChatbotFABState();
 }

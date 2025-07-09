@@ -3,6 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 
 class ContactPage extends StatefulWidget {
+  const ContactPage({super.key});
+
   @override
   _ContactPageState createState() => _ContactPageState();
 }
@@ -369,12 +371,12 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
             },
           ),
           ElevatedButton(
-            child: Text('Close'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFF3F51B5),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Navigator.of(context).pop(),
+            child: Text('Close'),
           ),
         ],
       ),
@@ -384,7 +386,7 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
 
 class _EmergencySection extends StatelessWidget {
   final String search;
-  _EmergencySection({required this.search});
+  const _EmergencySection({required this.search});
 
   final List<Map<String, dynamic>> emergencyNumbers = const [
     {
@@ -490,7 +492,7 @@ class _EmergencySection extends StatelessWidget {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Location error: ' + e.toString()),
+          content: Text('Location error: $e'),
           backgroundColor: Color(0xFFE91E63),
         ),
       );
@@ -697,7 +699,7 @@ class _EmergencySection extends StatelessWidget {
                 ),
               ),
             ),
-          )).toList(),
+          )),
         ],
       ),
     );
@@ -706,7 +708,7 @@ class _EmergencySection extends StatelessWidget {
 
 class _PoliceContacts extends StatelessWidget {
   final String search;
-  _PoliceContacts({required this.search});
+  const _PoliceContacts({required this.search});
 
   final List<Map<String, String>> policeContacts = const [
     {'name': 'SP Ahilyanagar', 'phone': '02462-123456', 'designation': 'Superintendent of Police'},
@@ -840,7 +842,7 @@ class _PoliceContacts extends StatelessWidget {
 
 class _HelplineList extends StatelessWidget {
   final String search;
-  _HelplineList({required this.search});
+  const _HelplineList({required this.search});
 
   final List<Map<String, dynamic>> helplines = const [
     {
@@ -1008,7 +1010,7 @@ class _HelplineList extends StatelessWidget {
 
 class _PoliceStations extends StatelessWidget {
   final String search;
-  _PoliceStations({required this.search});
+  const _PoliceStations({required this.search});
 
   final List<Map<String, dynamic>> policeStations = const [
     {

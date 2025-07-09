@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AhilyanagarPoliceForm extends StatefulWidget {
+  const AhilyanagarPoliceForm({super.key});
+
   @override
   _AhilyanagarPoliceFormState createState() => _AhilyanagarPoliceFormState();
 }

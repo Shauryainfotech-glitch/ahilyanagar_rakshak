@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class RegistrationPage extends StatefulWidget {
+  const RegistrationPage({super.key});
+
   @override
   _RegistrationPageState createState() => _RegistrationPageState();
 }
@@ -86,8 +88,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     ? CircularProgressIndicator()
                     : ElevatedButton(
                         onPressed: _register,
-                        child: Text('Register'),
                         style: ElevatedButton.styleFrom(minimumSize: Size(double.infinity, 48)),
+                        child: Text('Register'),
                       ),
                 SizedBox(height: 16),
                 TextButton(

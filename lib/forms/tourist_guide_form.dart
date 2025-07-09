@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class TouristGuideForm extends StatefulWidget {
+  const TouristGuideForm({super.key});
+
   @override
   _TouristGuideFormState createState() => _TouristGuideFormState();
 }

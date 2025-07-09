@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AccidentGDForm extends StatefulWidget {
+  const AccidentGDForm({super.key});
+
   @override
   _AccidentGDFormState createState() => _AccidentGDFormState();
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SearchPoliceStationForm extends StatelessWidget {
+  const SearchPoliceStationForm({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

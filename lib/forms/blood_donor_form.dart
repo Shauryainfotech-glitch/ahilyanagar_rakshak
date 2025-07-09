@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class BloodDonorForm extends StatefulWidget {
+  const BloodDonorForm({super.key});
+
   @override
   _BloodDonorFormState createState() => _BloodDonorFormState();
 }

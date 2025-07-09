@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class FeedbackForm extends StatefulWidget {
+  const FeedbackForm({super.key});
+
   @override
   _FeedbackFormState createState() => _FeedbackFormState();
 }
@@ -154,7 +156,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
                     '2 Stars - Fair',
                     '1 Star - Poor'
                   ].map((rating) => DropdownMenuItem(value: rating, child: Text(rating))).toList(),
-                  onChanged: (value) => setState(() => this.rating = value),
+                  onChanged: (value) => setState(() => rating = value),
                   validator: (value) => value == null ? 'Please select rating' : null,
                 ),
                 SizedBox(height: 16),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class FIRDownloadForm extends StatefulWidget {
+  const FIRDownloadForm({super.key});
+
   @override
   _FIRDownloadFormState createState() => _FIRDownloadFormState();
 }
