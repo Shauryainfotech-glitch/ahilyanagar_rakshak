@@ -41,6 +41,7 @@ import 'forms/social_media_of_police_form.dart';
 import 'forms/maharashtra_government_form.dart';
 import 'forms/ahilyanagar_police_form.dart';
 import 'forms/cyber_done_form.dart';
+import 'notifications_page.dart';
 
 void main() {
   runApp(
@@ -207,6 +208,7 @@ class MyApp extends StatelessWidget {
         '/ahilyanagar_police': (context) => AhilyanagarPoliceForm(),
         '/cyber_done': (context) => CyberDoneForm(),
         '/chatbot': (context) => ChatbotScreen(),
+        '/notifications': (context) => NotificationsPage(),
       },
     );
   }
@@ -466,9 +468,12 @@ class HomePage extends StatelessWidget {
           ),
           Stack(
             children: [
-              const IconButton(
+              IconButton(
                 icon: Icon(Icons.notifications_rounded, color: Colors.white, size: 28),
-                onPressed: null,
+                tooltip: 'Notifications',
+                onPressed: () {
+                  Navigator.pushNamed(context, '/notifications');
+                },
               ),
               Positioned(
                 right: 8,
