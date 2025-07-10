@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class ShareInformationForm extends StatelessWidget {
   const ShareInformationForm({super.key});
@@ -6,8 +7,10 @@ class ShareInformationForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Share Information')),
-      body: Center(child: Text('Share Information Form')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.shareInformation)),
+      body: Center(
+        child: Text(AppLocalizations.of(context)!.formComingSoon),
+      ),
     );
   }
 }

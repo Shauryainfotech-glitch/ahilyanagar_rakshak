@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class CyberSecurityInfoForm extends StatelessWidget {
   const CyberSecurityInfoForm({super.key});
@@ -6,8 +7,10 @@ class CyberSecurityInfoForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Cyber Security Information')),
-      body: Center(child: Text('Cyber Security Information Form')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.cyberSecurityInfo)),
+      body: Center(
+        child: Text(AppLocalizations.of(context)!.formComingSoon),
+      ),
     );
   }
 }

@@ -1,9 +1,13 @@
 import 'package:demo_app/profile_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 import 'chatbot_screen.dart';
 import 'login_page.dart';
 import 'registration_page.dart';
 import 'sos_button.dart';
+import 'l10n/language_provider.dart';
+import 'l10n/app_localizations.dart';
 
 // Form imports
 import 'forms/complaint_registration_form.dart';
@@ -39,7 +43,12 @@ import 'forms/ahilyanagar_police_form.dart';
 import 'forms/cyber_done_form.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => LanguageProvider(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -47,9 +56,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Ahilyanagar Police',
+      locale: languageProvider.currentLocale,
+      supportedLocales: LanguageProvider.supportedLocales,
+      localizationsDelegates: LanguageProvider.localizationsDelegates,
       theme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.indigo,
@@ -287,26 +301,26 @@ class _MainNavigationState extends State<MainNavigation>
                       _animationController.reset();
                       _animationController.forward();
                     },
-                    items: const [
+                    items: [
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.home_rounded, size: 24),
-                        label: 'Home',
+                        icon: const Icon(Icons.home_rounded, size: 24),
+                        label: AppLocalizations.of(context)!.home,
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.miscellaneous_services_rounded, size: 24),
-                        label: 'Services',
+                        icon: const Icon(Icons.miscellaneous_services_rounded, size: 24),
+                        label: AppLocalizations.of(context)!.services,
                       ),
-                      BottomNavigationBarItem(
+                      const BottomNavigationBarItem(
                         icon: SizedBox.shrink(), // Center slot for SOS FAB
                         label: '',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.contact_phone_rounded, size: 24),
-                        label: 'Contact',
+                        icon: const Icon(Icons.contact_phone_rounded, size: 24),
+                        label: AppLocalizations.of(context)!.contact,
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.person_rounded, size: 24),
-                        label: 'Profile',
+                        icon: const Icon(Icons.person_rounded, size: 24),
+                        label: AppLocalizations.of(context)!.profile,
                       ),
                     ],
                     selectedItemColor: Color(0xFF64B5F6),
@@ -349,632 +363,7 @@ class _MainNavigationState extends State<MainNavigation>
   }
 }
 
-// Profile Page Wrapper to avoid nested Scaffold issues
-class ProfilePageWrapper extends StatelessWidget {
-  const ProfilePageWrapper({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF0A0E21), Color(0xFF1A1F35)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: const SafeArea(
-        child: ProfilePageContent(),
-      ),
-    );
-  }
-}
-
-// Profile Page Content without Scaffold
-class ProfilePageContent extends StatefulWidget {
-  const ProfilePageContent({super.key});
-
-  @override
-  _ProfilePageContentState createState() => _ProfilePageContentState();
-}
-
-class _ProfilePageContentState extends State<ProfilePageContent> with TickerProviderStateMixin {
-  final _formKey = GlobalKey<FormState>();
-  late TabController _tabController;
-  
-  // Profile Data
-  String name = 'John Doe';
-  String email = 'john.doe@example.com';
-  String phone = '+91 98765 43210';
-  String address = 'Ahilyanagar, Maharashtra, India';
-  String gender = 'Male';
-  String aadhaarNumber = '1234 5678 9012';
-  String emergencyContact = '+91 98765 43211';
-  DateTime? dob;
-  final TextEditingController _dobController = TextEditingController();
-  bool isEditing = false;
-
-  // Settings
-  bool notificationsEnabled = true;
-  bool locationEnabled = true;
-  bool biometricEnabled = false;
-  String language = 'English';
-  String theme = 'Dark';
-  bool autoSync = true;
-  bool emergencyAlerts = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    dob = DateTime(1990, 5, 15);
-    _dobController.text = "${dob!.year}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}";
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    _dobController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: dob ?? DateTime(2000, 1, 1),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != dob) {
-      setState(() {
-        dob = picked;
-        _dobController.text = "${dob!.year}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}";
-      });
-    }
-  }
-
-  void _toggleEdit() {
-    setState(() {
-      isEditing = !isEditing;
-    });
-  }
-
-  void _saveProfile() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      setState(() {
-        isEditing = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle_rounded, color: Colors.white),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Profile updated successfully!',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: const Color(0xFF4CAF50),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.all(16),
-        ),
-      );
-    }
-  }
-
-  void _logout() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2A2F45),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Logout',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        content: const Text(
-          'Are you sure you want to logout?',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Color(0xFF64B5F6)),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.logout_rounded, color: Colors.white),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Logged out successfully!',
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: const Color(0xFFE91E63),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  margin: const EdgeInsets.all(16),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE91E63),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 120), // Add bottom padding for navbar
-      child: Column(
-        children: [
-          // Enhanced Header
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF1A1F35), Color(0xFF2A2F45)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black,
-                  blurRadius: 15,
-                  offset: Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF64B5F6), Color(0xFF3F51B5)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF64B5F6),
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(Icons.person_rounded, color: Colors.white, size: 28),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Profile',
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Text(
-                            'Manage your account',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF64B5F6),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        isEditing ? Icons.save_rounded : Icons.edit_rounded,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                      onPressed: isEditing ? _saveProfile : _toggleEdit,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                // Profile Avatar and Basic Info
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: const Color(0xFF64B5F6),
-                      child: Text(
-                        name.split(' ').map((e) => e[0]).join('').toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            name,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            email,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white70,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            phone,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          // Profile Tabs
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: const BoxDecoration(
-              color: Color(0xFF2A2F45),
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-            ),
-            child: TabBar(
-              controller: _tabController,
-              tabs: const [
-                Tab(text: 'Personal'),
-                Tab(text: 'Settings'),
-                Tab(text: 'Security'),
-              ],
-              indicatorColor: const Color(0xFF64B5F6),
-              indicatorWeight: 3,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
-              dividerColor: Colors.transparent,
-            ),
-          ),
-          const SizedBox(height: 20),
-          // Tab Content
-          SizedBox(
-            height: 400, // Fixed height to prevent layout issues
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildPersonalTab(),
-                _buildSettingsTab(),
-                _buildSecurityTab(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPersonalTab() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            _buildProfileField('Full Name', name, Icons.person_rounded, isEditing),
-            _buildProfileField('Email', email, Icons.email_rounded, isEditing),
-            _buildProfileField('Phone', phone, Icons.phone_rounded, isEditing),
-            _buildProfileField('Address', address, Icons.location_on_rounded, isEditing),
-            _buildProfileField('Gender', gender, Icons.person_outline_rounded, isEditing),
-            _buildProfileField('Aadhaar', aadhaarNumber, Icons.credit_card_rounded, isEditing),
-            _buildProfileField('Emergency Contact', emergencyContact, Icons.emergency_rounded, isEditing),
-            _buildDateField(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsTab() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          _buildSettingSwitch('Notifications', notificationsEnabled, Icons.notifications_rounded),
-          _buildSettingSwitch('Location Services', locationEnabled, Icons.location_on_rounded),
-          _buildSettingSwitch('Biometric Login', biometricEnabled, Icons.fingerprint_rounded),
-          _buildSettingSwitch('Auto Sync', autoSync, Icons.sync_rounded),
-          _buildSettingSwitch('Emergency Alerts', emergencyAlerts, Icons.warning_rounded),
-          _buildSettingDropdown('Language', language, ['English', 'Hindi', 'Marathi'], Icons.language_rounded),
-          _buildSettingDropdown('Theme', theme, ['Dark', 'Light', 'Auto'], Icons.palette_rounded),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSecurityTab() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          _buildSecurityOption('Change Password', Icons.lock_rounded, () {}),
-          _buildSecurityOption('Two-Factor Authentication', Icons.security_rounded, () {}),
-          _buildSecurityOption('Privacy Settings', Icons.privacy_tip_rounded, () {}),
-          _buildSecurityOption('Data Export', Icons.download_rounded, () {}),
-          _buildSecurityOption('Delete Account', Icons.delete_forever_rounded, _logout),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileField(String label, String value, IconData icon, bool editable) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Color(0xFF2A2F45),
-        borderRadius: BorderRadius.all(Radius.circular(16)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF3F51B5).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: const Color(0xFF64B5F6), size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDateField() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Color(0xFF2A2F45),
-        borderRadius: BorderRadius.all(Radius.circular(16)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF3F51B5).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.calendar_today_rounded, color: Color(0xFF64B5F6), size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Date of Birth',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  dob != null ? "${dob!.day}/${dob!.month}/${dob!.year}" : "Not set",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (isEditing)
-            IconButton(
-              icon: const Icon(Icons.edit_rounded, color: Color(0xFF64B5F6)),
-              onPressed: () => _selectDate(context),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingSwitch(String title, bool value, IconData icon) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Color(0xFF2A2F45),
-        borderRadius: BorderRadius.all(Radius.circular(16)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF3F51B5).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: const Color(0xFF64B5F6), size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Switch(
-            value: value,
-            onChanged: (newValue) {
-              setState(() {
-                // Update the corresponding setting
-                if (title == 'Notifications') notificationsEnabled = newValue;
-                if (title == 'Location Services') locationEnabled = newValue;
-                if (title == 'Biometric Login') biometricEnabled = newValue;
-                if (title == 'Auto Sync') autoSync = newValue;
-                if (title == 'Emergency Alerts') emergencyAlerts = newValue;
-              });
-            },
-            activeColor: const Color(0xFF64B5F6),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingDropdown(String title, String value, List<String> options, IconData icon) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Color(0xFF2A2F45),
-        borderRadius: BorderRadius.all(Radius.circular(16)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF3F51B5).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: const Color(0xFF64B5F6), size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.arrow_drop_down_rounded, color: Color(0xFF64B5F6)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSecurityOption(String title, IconData icon, VoidCallback onTap) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF3F51B5).withOpacity(0.2),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: const Color(0xFF64B5F6), size: 20),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF64B5F6), size: 16),
-        onTap: onTap,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        tileColor: const Color(0xFF2A2F45),
-      ),
-    );
-  }
-}
 
 // Modern App Header for HomePage
 class HomePage extends StatelessWidget {
@@ -996,10 +385,10 @@ class HomePage extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 120), // Add bottom padding for FAB and navbar
             child: Column(
               children: [
-                _buildHeader(),
-                _buildAlertSection(),
+                _buildHeader(context),
+                _buildAlertSection(context),
                 _buildQuickServicesSection(context),
-                _buildEmergencyContactsSection(),
+                _buildEmergencyContactsSection(context),
                 _buildDailyUpdatesSection(context),
               ],
             ),
@@ -1009,7 +398,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -1053,15 +442,14 @@ class HomePage extends StatelessWidget {
             child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 28),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
-                SizedBox(height: 1),
+                const SizedBox(height: 1),
                 Text(
-                  'Ahilyanagar Police',
-                  style: TextStyle(
+                  AppLocalizations.of(context)!.ahilyanagarPolice,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -1105,7 +493,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAlertSection() {
+  Widget _buildAlertSection(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
       child: Container(
@@ -1137,23 +525,23 @@ class HomePage extends StatelessWidget {
                 child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 32),
               ),
               const SizedBox(width: 16),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Missing Person Alert!',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.missingPersonAlertTitle,
+                      style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                         fontSize: 18,
                         letterSpacing: 0.5,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
-                      'A 12-year-old child is missing in Ahilyanagar. If seen, call 100 immediately.',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.missingPersonAlertDescription,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                         height: 1.4,
@@ -1192,8 +580,8 @@ class HomePage extends StatelessWidget {
           padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
-              const Text(
-                'Quick Services',
+              Text(
+                AppLocalizations.of(context)!.quickServices,
                 style: TextStyle(
                   color: Color(0xFF64B5F6),
                   fontWeight: FontWeight.w600,
@@ -1204,25 +592,25 @@ class HomePage extends StatelessWidget {
               // Single row layout for quick services
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
+                children: [
                   _ServiceIcon(
                     icon: Icons.report_problem_rounded,
-                    label: 'File Complaint',
+                    label: AppLocalizations.of(context)!.fileComplaint,
                     color: Color(0xFFFF9800),
                   ),
                   _ServiceIcon(
                     icon: Icons.security_rounded,
-                    label: 'Safety Tips',
+                    label: AppLocalizations.of(context)!.safetyTips,
                     color: Color(0xFF4CAF50),
                   ),
                   _ServiceIcon(
                     icon: Icons.bloodtype_rounded,
-                    label: 'Blood Request',
+                    label: AppLocalizations.of(context)!.bloodRequest,
                     color: Color(0xFFE91E63),
                   ),
                   _ServiceIcon(
                     icon: Icons.event_rounded,
-                    label: 'Appointments',
+                    label: AppLocalizations.of(context)!.appointments,
                     color: Color(0xFF9C27B0),
                   ),
                 ],
@@ -1234,7 +622,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildEmergencyContactsSection() {
+  Widget _buildEmergencyContactsSection(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
       child: Container(
@@ -1253,18 +641,18 @@ class HomePage extends StatelessWidget {
             ),
           ],
         ),
-        child: const Padding(
-          padding: EdgeInsets.all(24.0),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Icon(Icons.emergency_rounded, color: Color(0xFFFFD700), size: 28),
-                  SizedBox(width: 12),
+                  const Icon(Icons.emergency_rounded, color: Color(0xFFFFD700), size: 28),
+                  const SizedBox(width: 12),
                   Text(
-                    'Emergency Contacts',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.emergencyContacts,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                       fontSize: 20,
@@ -1273,30 +661,30 @@ class HomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
                     _ContactIcon(
                       icon: Icons.local_police_rounded,
-                      label: 'Police',
+                      label: AppLocalizations.of(context)!.police,
                       phone: '100',
-                      color: Color(0xFF2196F3),
+                      color: const Color(0xFF2196F3),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     _ContactIcon(
                       icon: Icons.local_hospital_rounded,
-                      label: 'Ambulance',
+                      label: AppLocalizations.of(context)!.ambulance,
                       phone: '108',
-                      color: Color(0xFFE91E63),
+                      color: const Color(0xFFE91E63),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     _ContactIcon(
                       icon: Icons.local_fire_department_rounded,
-                      label: 'Fire',
+                      label: AppLocalizations.of(context)!.fire,
                       phone: '101',
-                      color: Color(0xFFFF9800),
+                      color: const Color(0xFFFF9800),
                     ),
                   ],
                 ),
@@ -1330,15 +718,15 @@ class HomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(24.0),
+            Padding(
+              padding: const EdgeInsets.all(24.0),
               child: Row(
                 children: [
-                  Icon(Icons.newspaper_rounded, color: Color(0xFF64B5F6), size: 28),
-                  SizedBox(width: 12),
+                  const Icon(Icons.newspaper_rounded, color: Color(0xFF64B5F6), size: 28),
+                  const SizedBox(width: 12),
                   Text(
-                    'Daily Updates',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.dailyUpdates,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF64B5F6),
                       fontSize: 20,
@@ -1355,20 +743,20 @@ class HomePage extends StatelessWidget {
                 children: [
                   _UpdateTile(
                     icon: Icons.traffic_rounded,
-                    title: 'Traffic diversion on MG Road today',
-                    subtitle: 'Due to maintenance work',
+                    title: AppLocalizations.of(context)!.trafficDiversionTitle,
+                    subtitle: AppLocalizations.of(context)!.trafficDiversionSubtitle,
                     color: Color(0xFFFF9800),
                   ),
                   _UpdateTile(
                     icon: Icons.school_rounded,
-                    title: 'Police awareness drive at City School',
-                    subtitle: 'Cyber safety workshop',
+                    title: AppLocalizations.of(context)!.awarenessDriveTitle,
+                    subtitle: AppLocalizations.of(context)!.awarenessDriveSubtitle,
                     color: Color(0xFF4CAF50),
                   ),
                   _UpdateTile(
                     icon: Icons.security_rounded,
-                    title: 'Cyber safety tips for citizens',
-                    subtitle: 'Protect yourself online',
+                    title: AppLocalizations.of(context)!.cyberSafetyTipsTitle,
+                    subtitle: AppLocalizations.of(context)!.cyberSafetyTipsSubtitle,
                     color: Color(0xFF2196F3),
                   ),
                 ],
@@ -1448,13 +836,13 @@ class _ServiceIcon extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  
+
   const _ServiceIcon({
     required this.icon,
     required this.label,
     required this.color,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -1503,14 +891,14 @@ class _ContactIcon extends StatelessWidget {
   final String label;
   final String phone;
   final Color color;
-  
+
   const _ContactIcon({
     required this.icon,
     required this.label,
     required this.phone,
     required this.color,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -1617,20 +1005,20 @@ class ServicesPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Police Services',
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Text(
-                            'Access all police services',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF64B5F6),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                                                        Text(
+                                AppLocalizations.of(context)!.policeServices,
+                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              Text(
+                                AppLocalizations.of(context)!.accessAllServices,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: const Color(0xFF64B5F6),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                         ],
                       ),
                     ),
@@ -1659,105 +1047,105 @@ class ServicesPageBody extends StatelessWidget {
       SectionData(
         icon: Icons.account_balance_rounded,
         color: const Color(0xFF3F51B5),
-        title: 'Thuna Service',
-        subtitle: 'Official police services',
+        title: AppLocalizations.of(context)!.thunaService,
+        subtitle: AppLocalizations.of(context)!.officialPoliceServices,
         children: [
-          ServiceForm(title: 'Complaint Registration', icon: Icons.report_problem_rounded),
-          ServiceForm(title: 'Mike Sanction Registration', icon: Icons.mic_rounded),
-          ServiceForm(title: 'FIR Download', icon: Icons.download_rounded),
-          ServiceForm(title: 'Accident GD', icon: Icons.car_crash_rounded),
-          ServiceForm(title: 'Lost Property', icon: Icons.search_rounded),
-          ServiceForm(title: 'Payment History', icon: Icons.payment_rounded),
-          ServiceForm(title: 'Event Performance', icon: Icons.event_rounded),
-          ServiceForm(title: 'Grievance Redressal', icon: Icons.feedback_rounded),
-          ServiceForm(title: 'Arrest Search', icon: Icons.person_search_rounded),
-          ServiceForm(title: 'Feedback', icon: Icons.rate_review_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.complaintRegistration, icon: Icons.report_problem_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.mikeSanctionRegistration, icon: Icons.mic_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.firDownload, icon: Icons.download_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.accidentGd, icon: Icons.car_crash_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.lostProperty, icon: Icons.search_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.paymentHistory, icon: Icons.payment_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.eventPerformance, icon: Icons.event_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.grievanceRedressal, icon: Icons.feedback_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.arrestSearch, icon: Icons.person_search_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.feedback, icon: Icons.rate_review_rounded),
         ],
       ),
       SectionData(
         icon: Icons.bloodtype_rounded,
         color: const Color(0xFFE91E63),
-        title: 'Pol-Blood Service',
-        subtitle: 'Blood donation and requests',
+        title: AppLocalizations.of(context)!.polBloodService,
+        subtitle: AppLocalizations.of(context)!.bloodDonationRequests,
         children: [
-          ServiceForm(title: 'Blood Donor', icon: Icons.favorite_rounded),
-          ServiceForm(title: 'Blood Request', icon: Icons.bloodtype_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.bloodDonor, icon: Icons.favorite_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.bloodRequest, icon: Icons.bloodtype_rounded),
         ],
       ),
       SectionData(
         icon: Icons.security_rounded,
         color: const Color(0xFF4CAF50),
-        title: 'Citizen Safety Service',
-        subtitle: 'Personal safety features',
+        title: AppLocalizations.of(context)!.citizenSafetyService,
+        subtitle: AppLocalizations.of(context)!.personalSafetyFeatures,
         children: [
-          ServiceForm(title: 'Track My Trip', icon: Icons.location_on_rounded),
-          ServiceForm(title: 'Locked House Information', icon: Icons.home_rounded),
-          ServiceForm(title: 'Senior Citizen Information', icon: Icons.elderly_rounded),
-          ServiceForm(title: 'Single Women Living Alone', icon: Icons.woman_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.trackMyTrip, icon: Icons.location_on_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.lockedHouseInfo, icon: Icons.home_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.seniorCitizenInfo, icon: Icons.elderly_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.singleWomenLivingAlone, icon: Icons.woman_rounded),
         ],
       ),
       SectionData(
         icon: Icons.report_problem_rounded,
         color: const Color(0xFFFF9800),
-        title: 'Report an Offence',
-        subtitle: 'Report crimes and incidents',
+        title: AppLocalizations.of(context)!.reportOffence,
+        subtitle: AppLocalizations.of(context)!.reportCrimesIncidents,
         children: [
-          ServiceForm(title: 'Report Abduction', icon: Icons.person_off_rounded),
-          ServiceForm(title: 'Report Cyber Fraud', icon: Icons.computer_rounded),
-          ServiceForm(title: 'Share Information', icon: Icons.share_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.reportAbduction, icon: Icons.person_off_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.reportCyberFraud, icon: Icons.computer_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.shareInformation, icon: Icons.share_rounded),
         ],
       ),
       SectionData(
         icon: Icons.event_rounded,
         color: const Color(0xFF9C27B0),
-        title: 'Appointment & Search',
-        subtitle: 'Schedule and find services',
+        title: AppLocalizations.of(context)!.appointmentSearch,
+        subtitle: AppLocalizations.of(context)!.scheduleFindServices,
         children: [
-          ServiceForm(title: 'Appointment with SHO', icon: Icons.calendar_today_rounded),
-          ServiceForm(title: 'Search Police Station', icon: Icons.location_city_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.appointmentWithSho, icon: Icons.calendar_today_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.searchPoliceStation, icon: Icons.location_city_rounded),
         ],
       ),
       SectionData(
         icon: Icons.tips_and_updates_rounded,
         color: const Color(0xFF00BCD4),
-        title: 'Internet Tips',
-        subtitle: 'Cyber safety and guidance',
+        title: AppLocalizations.of(context)!.internetTips,
+        subtitle: AppLocalizations.of(context)!.cyberSafetyGuidance,
         children: [
-          ServiceForm(title: 'Cyber Security Information', icon: Icons.security_rounded),
-          ServiceForm(title: 'Tourist Guide', icon: Icons.tour_rounded),
-          ServiceForm(title: 'User Manual', icon: Icons.menu_book_rounded),
-          ServiceForm(title: 'Awareness Classes', icon: Icons.school_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.cyberSecurityInfo, icon: Icons.security_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.touristGuide, icon: Icons.tour_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.userManual, icon: Icons.menu_book_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.awarenessClasses, icon: Icons.school_rounded),
         ],
       ),
       SectionData(
         icon: Icons.star_rounded,
         color: const Color(0xFFFFD700),
-        title: 'Rate',
-        subtitle: 'Rate our services',
+        title: AppLocalizations.of(context)!.rate,
+        subtitle: AppLocalizations.of(context)!.rateOurServices,
         children: [
-          ServiceForm(title: 'Rate Police Station', icon: Icons.location_city_rounded),
-          ServiceForm(title: 'Rate Application', icon: Icons.rate_review_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.ratePoliceStation, icon: Icons.location_city_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.rateApplication, icon: Icons.rate_review_rounded),
         ],
       ),
       SectionData(
         icon: Icons.link_rounded,
         color: const Color(0xFF607D8B),
-        title: 'Web Links',
-        subtitle: 'External resources',
+        title: AppLocalizations.of(context)!.webLinks,
+        subtitle: AppLocalizations.of(context)!.externalResources,
         children: [
-          ServiceForm(title: 'Social Media of Police', icon: Icons.share_rounded),
-          ServiceForm(title: 'Maharashtra Government', icon: Icons.account_balance_rounded),
-          ServiceForm(title: 'Ahilyanagar Police', icon: Icons.local_police_rounded),
-          ServiceForm(title: 'Cyber Done', icon: Icons.computer_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.socialMediaOfPolice, icon: Icons.share_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.maharashtraGovernment, icon: Icons.account_balance_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.ahilyanagarPolice, icon: Icons.local_police_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.cyberDone, icon: Icons.computer_rounded),
         ],
       ),
       SectionData(
         icon: Icons.smart_toy_rounded,
         color: const Color(0xFF64B5F6),
-        title: 'AI Assistant',
-        subtitle: '24/7 Police Chatbot',
+        title: AppLocalizations.of(context)!.aiAssistant,
+        subtitle: AppLocalizations.of(context)!.policeChatbot,
         children: [
-          ServiceForm(title: 'Police Chatbot', icon: Icons.chat_bubble_rounded),
+          ServiceForm(title: AppLocalizations.of(context)!.policeChatbot, icon: Icons.chat_bubble_rounded),
         ],
       ),
     ];
@@ -1901,25 +1289,29 @@ class ContactPage extends StatefulWidget {
 }
 
 class _ContactPageState extends State<ContactPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  final List<String> _tabs = ['Contact', 'Helpline', 'Emergency'];
+  TabController? _tabController;
+  List<String> get _tabs => [
+    AppLocalizations.of(context)!.contact,
+    AppLocalizations.of(context)!.helpline,
+    AppLocalizations.of(context)!.emergency,
+  ];
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    _tabController ??= TabController(length: _tabs.length, vsync: this);
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -1978,14 +1370,14 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Contact & Emergency',
+                                AppLocalizations.of(context)!.contactEmergency,
                                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
                               Text(
-                                'Get in touch with us',
+                                AppLocalizations.of(context)!.getInTouch,
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: const Color(0xFF64B5F6),
                                   fontWeight: FontWeight.w500,
@@ -2009,10 +1401,10 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
                           ),
                         ],
                       ),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: const InputDecoration(
-                          hintText: 'Search contacts...',
+                                              child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: AppLocalizations.of(context)!.searchContacts,
                           prefixIcon: Icon(Icons.search_rounded, color: Color(0xFF64B5F6)),
                           filled: true,
                           fillColor: Color(0xFF2A2F45),
@@ -2086,7 +1478,7 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
 
 class _ContactList extends StatelessWidget {
   final String search;
-  
+
   const _ContactList({required this.search});
 
   final List<Map<String, String>> contacts = const [
@@ -2186,21 +1578,21 @@ class _ContactList extends StatelessWidget {
 
 class _HelplineList extends StatelessWidget {
   final String search;
-  
+
   const _HelplineList({required this.search});
 
-  final List<Map<String, String>> helplines = const [
-    {'name': 'Women Helpline', 'phone': '1091'},
-    {'name': 'Child Helpline', 'phone': '1098'},
-    {'name': 'Ambulance', 'phone': '108'},
-    {'name': 'Fire', 'phone': '101'},
-    {'name': 'Police', 'phone': '100'},
+  List<Map<String, String>> getHelplines(BuildContext context) => [
+    {'name': AppLocalizations.of(context)!.womenHelpline, 'phone': '1091'},
+    {'name': AppLocalizations.of(context)!.childHelpline, 'phone': '1098'},
+    {'name': AppLocalizations.of(context)!.ambulance, 'phone': '108'},
+    {'name': AppLocalizations.of(context)!.fire, 'phone': '101'},
+    {'name': AppLocalizations.of(context)!.police, 'phone': '100'},
     // Add more helplines as needed
   ];
 
   @override
   Widget build(BuildContext context) {
-    final filtered = helplines.where((c) => c['name']!.toLowerCase().contains(search.toLowerCase())).toList();
+    final filtered = getHelplines(context).where((c) => c['name']!.toLowerCase().contains(search.toLowerCase())).toList();
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: filtered.length,
@@ -2325,12 +1717,12 @@ class _EmergencySection extends StatelessWidget {
                     child: const Icon(Icons.notification_important_rounded, color: Colors.white, size: 28),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Emergency Notification',
+                          AppLocalizations.of(context)!.emergencyNotification,
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
@@ -2339,7 +1731,7 @@ class _EmergencySection extends StatelessWidget {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Send emergency alert to all contacts',
+                          AppLocalizations.of(context)!.sendEmergencyAlert,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -2362,8 +1754,8 @@ class _EmergencySection extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'Notify',
+                      child: Text(
+                        AppLocalizations.of(context)!.notify,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
@@ -2376,8 +1768,8 @@ class _EmergencySection extends StatelessWidget {
             ),
 
             // Emergency Contacts Section
-            const Text(
-              'Emergency Contacts',
+            Text(
+              AppLocalizations.of(context)!.emergencyContacts,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -2386,20 +1778,20 @@ class _EmergencySection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            const _EmergencyContactCard(
-              title: 'Police Department',
+            _EmergencyContactCard(
+              title: AppLocalizations.of(context)!.policeDepartment,
               phone: '100',
               color: Color(0xFF2196F3),
               icon: Icons.local_police_rounded,
             ),
-            const _EmergencyContactCard(
-              title: 'Ambulance Service',
+            _EmergencyContactCard(
+              title: AppLocalizations.of(context)!.ambulanceService,
               phone: '108',
               color: Color(0xFFE91E63),
               icon: Icons.local_hospital_rounded,
             ),
-            const _EmergencyContactCard(
-              title: 'Fire Department',
+            _EmergencyContactCard(
+              title: AppLocalizations.of(context)!.fireDepartment,
               phone: '101',
               color: Color(0xFFFF9800),
               icon: Icons.local_fire_department_rounded,
@@ -2417,7 +1809,7 @@ class _EmergencyContactCard extends StatelessWidget {
   final Color color;
   final IconData icon;
 
-  const _EmergencyContactCard({
+  _EmergencyContactCard({
     required this.title,
     required this.phone,
     required this.color,
@@ -2505,8 +1897,8 @@ class _EmergencyContactCard extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
-            child: const Text(
-              'Call',
+            child: Text(
+              AppLocalizations.of(context)!.call,
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
@@ -2529,38 +1921,38 @@ class ServiceForm extends StatelessWidget {
   void _navigateToForm(BuildContext context) {
     // Map service titles to their corresponding form routes
     final Map<String, String> serviceRoutes = {
-      'Complaint Registration': '/complaint_registration',
-      'Mike Sanction Registration': '/mike_sanction_registration',
-      'FIR Download': '/fir_download',
-      'Accident GD': '/accident_gd',
-      'Lost Property': '/lost_property',
-      'Payment History': '/payment_history',
-      'Event Performance': '/event_performance',
-      'Grievance Redressal': '/grievance_redressal',
-      'Arrest Search': '/arrest_search',
-      'Feedback': '/feedback',
-      'Blood Donor': '/blood_donor',
-      'Blood Request': '/blood_request',
-      'Track My Trip': '/track_my_trip',
-      'Locked House Information': '/locked_house_info',
-      'Senior Citizen Information': '/senior_citizen_info',
-      'Single Women Living Alone': '/single_women_living_alone',
-      'Report Abduction': '/report_abduction',
-      'Report Cyber Fraud': '/report_cyber_fraud',
-      'Share Information': '/share_information',
-      'Appointment with SHO': '/appointment_with_sho',
-      'Search Police Station': '/search_police_station',
-      'Cyber Security Information': '/cyber_security_info',
-      'Tourist Guide': '/tourist_guide',
-      'User Manual': '/user_manual',
-      'Awareness Classes': '/awareness_classes',
-      'Rate Police Station': '/rate_police_station',
-      'Rate Application': '/rate_application',
-      'Social Media of Police': '/social_media_of_police',
-      'Maharashtra Government': '/maharashtra_government',
-      'Ahilyanagar Police': '/ahilyanagar_police',
-      'Cyber Done': '/cyber_done',
-      'Police Chatbot': '/chatbot',
+      AppLocalizations.of(context)!.complaintRegistration: '/complaint_registration',
+      AppLocalizations.of(context)!.mikeSanctionRegistration: '/mike_sanction_registration',
+      AppLocalizations.of(context)!.firDownload: '/fir_download',
+      AppLocalizations.of(context)!.accidentGd: '/accident_gd',
+      AppLocalizations.of(context)!.lostProperty: '/lost_property',
+      AppLocalizations.of(context)!.paymentHistory: '/payment_history',
+      AppLocalizations.of(context)!.eventPerformance: '/event_performance',
+      AppLocalizations.of(context)!.grievanceRedressal: '/grievance_redressal',
+      AppLocalizations.of(context)!.arrestSearch: '/arrest_search',
+      AppLocalizations.of(context)!.feedback: '/feedback',
+      AppLocalizations.of(context)!.bloodDonor: '/blood_donor',
+      AppLocalizations.of(context)!.bloodRequest: '/blood_request',
+      AppLocalizations.of(context)!.trackMyTrip: '/track_my_trip',
+      AppLocalizations.of(context)!.lockedHouseInfo: '/locked_house_info',
+      AppLocalizations.of(context)!.seniorCitizenInfo: '/senior_citizen_info',
+      AppLocalizations.of(context)!.singleWomenLivingAlone: '/single_women_living_alone',
+      AppLocalizations.of(context)!.reportAbduction: '/report_abduction',
+      AppLocalizations.of(context)!.reportCyberFraud: '/report_cyber_fraud',
+      AppLocalizations.of(context)!.shareInformation: '/share_information',
+      AppLocalizations.of(context)!.appointmentWithSho: '/appointment_with_sho',
+      AppLocalizations.of(context)!.searchPoliceStation: '/search_police_station',
+      AppLocalizations.of(context)!.cyberSecurityInfo: '/cyber_security_info',
+      AppLocalizations.of(context)!.touristGuide: '/tourist_guide',
+      AppLocalizations.of(context)!.userManual: '/user_manual',
+      AppLocalizations.of(context)!.awarenessClasses: '/awareness_classes',
+      AppLocalizations.of(context)!.ratePoliceStation: '/rate_police_station',
+      AppLocalizations.of(context)!.rateApplication: '/rate_application',
+      AppLocalizations.of(context)!.socialMediaOfPolice: '/social_media_of_police',
+      AppLocalizations.of(context)!.maharashtraGovernment: '/maharashtra_government',
+      AppLocalizations.of(context)!.ahilyanagarPolice: '/ahilyanagar_police',
+      AppLocalizations.of(context)!.cyberDone: '/cyber_done',
+      AppLocalizations.of(context)!.policeChatbot: '/chatbot',
     };
 
     final route = serviceRoutes[title];
@@ -2641,8 +2033,8 @@ class ServiceForm extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
-            child: const Text(
-              'Access',
+            child: Text(
+              AppLocalizations.of(context)!.access,
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,

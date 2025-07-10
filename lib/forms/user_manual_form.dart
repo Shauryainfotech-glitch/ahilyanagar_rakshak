@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class UserManualForm extends StatefulWidget {
   const UserManualForm({super.key});
@@ -29,7 +30,7 @@ class _UserManualFormState extends State<UserManualForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('User Manual')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.userManual)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -37,76 +38,80 @@ class _UserManualFormState extends State<UserManualForm> {
           child: ListView(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Applicant Name'),
-                validator: (value) => value == null || value.isEmpty ? 'Enter your name' : null,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.applicantName),
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterYourName : null,
                 onSaved: (value) => applicantName = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Applicant Contact Number'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.applicantContactNumber),
                 keyboardType: TextInputType.phone,
-                validator: (value) => value == null || value.isEmpty ? 'Enter contact number' : null,
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterContactNumber : null,
                 onSaved: (value) => applicantContact = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Applicant Email'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.applicantEmail),
                 keyboardType: TextInputType.emailAddress,
-                validator: (value) => value == null || value.isEmpty ? 'Enter email' : null,
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterEmail : null,
                 onSaved: (value) => applicantEmail = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Address'),
-                validator: (value) => value == null || value.isEmpty ? 'Enter address' : null,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.address),
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterAddress : null,
                 onSaved: (value) => applicantAddress = value,
               ),
               SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                decoration: InputDecoration(labelText: 'ID Proof Type'),
-                items: ['Aadhaar', 'PAN', 'Voter ID', 'Passport', 'Other']
-                    .map((id) => DropdownMenuItem(value: id, child: Text(id)))
-                    .toList(),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.idProofType),
+                items: [
+                  AppLocalizations.of(context)!.aadhaar,
+                  AppLocalizations.of(context)!.pan,
+                  AppLocalizations.of(context)!.voterId,
+                  AppLocalizations.of(context)!.passport,
+                  AppLocalizations.of(context)!.other
+                ].map((id) => DropdownMenuItem(value: id, child: Text(id))).toList(),
                 onChanged: (value) => setState(() => idProofType = value),
-                validator: (value) => value == null ? 'Select ID proof type' : null,
+                validator: (value) => value == null ? AppLocalizations.of(context)!.selectIdProofType : null,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'ID Proof Number'),
-                validator: (value) => value == null || value.isEmpty ? 'Enter ID proof number' : null,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.idProofNumber),
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterIdProofNumber : null,
                 onSaved: (value) => idProofNumber = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Emergency Contact Name'),
-                validator: (value) => value == null || value.isEmpty ? 'Enter emergency contact name' : null,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.emergencyContactName),
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterEmergencyContactName : null,
                 onSaved: (value) => emergencyContactName = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Emergency Contact Number'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.emergencyContactNumber),
                 keyboardType: TextInputType.phone,
-                validator: (value) => value == null || value.isEmpty ? 'Enter emergency contact number' : null,
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterEmergencyContactNumber : null,
                 onSaved: (value) => emergencyContactNumber = value,
               ),
               SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                decoration: InputDecoration(labelText: 'Service Type'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.serviceType),
                 items: [
-                  'Police Verification',
-                  'NOC',
-                  'Character Certificate',
-                  'Event Permission',
-                  'Other'
+                  AppLocalizations.of(context)!.policeVerification,
+                  AppLocalizations.of(context)!.noc,
+                  AppLocalizations.of(context)!.characterCertificate,
+                  AppLocalizations.of(context)!.eventPermission,
+                  AppLocalizations.of(context)!.other
                 ].map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),
                 onChanged: (value) => setState(() => serviceType = value),
-                validator: (value) => value == null ? 'Select service type' : null,
+                validator: (value) => value == null ? AppLocalizations.of(context)!.selectServiceType : null,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Description of Service Needed'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.descriptionOfServiceNeeded),
                 maxLines: 3,
-                validator: (value) => value == null || value.isEmpty ? 'Enter service description' : null,
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterServiceDescription : null,
                 onSaved: (value) => serviceDescription = value,
               ),
               SizedBox(height: 12),
@@ -123,10 +128,10 @@ class _UserManualFormState extends State<UserManualForm> {
                 child: AbsorbPointer(
                   child: TextFormField(
                     decoration: InputDecoration(
-                      labelText: 'Preferred Date',
-                      hintText: preferredDate == null ? 'Select date' : preferredDate.toString().split(' ')[0],
+                      labelText: AppLocalizations.of(context)!.preferredDate,
+                      hintText: preferredDate == null ? AppLocalizations.of(context)!.selectDate : preferredDate.toString().split(' ')[0],
                     ),
-                    validator: (value) => preferredDate == null ? 'Select preferred date' : null,
+                    validator: (value) => preferredDate == null ? AppLocalizations.of(context)!.selectPreferredDate : null,
                   ),
                 ),
               ),
@@ -142,22 +147,22 @@ class _UserManualFormState extends State<UserManualForm> {
                 child: AbsorbPointer(
                   child: TextFormField(
                     decoration: InputDecoration(
-                      labelText: 'Preferred Time',
-                      hintText: preferredTime == null ? 'Select time' : preferredTime!.format(context),
+                      labelText: AppLocalizations.of(context)!.preferredTime,
+                      hintText: preferredTime == null ? AppLocalizations.of(context)!.selectTime : preferredTime!.format(context),
                     ),
-                    validator: (value) => preferredTime == null ? 'Select preferred time' : null,
+                    validator: (value) => preferredTime == null ? AppLocalizations.of(context)!.selectPreferredTime : null,
                   ),
                 ),
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Location/Address'),
-                validator: (value) => value == null || value.isEmpty ? 'Enter location/address' : null,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.locationAddress),
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterLocationAddress : null,
                 onSaved: (value) => location = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Additional Notes (optional)'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.additionalNotes),
                 maxLines: 2,
                 onSaved: (value) => additionalNotes = value,
               ),
@@ -167,11 +172,11 @@ class _UserManualFormState extends State<UserManualForm> {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Form submitted!')),
+                      SnackBar(content: Text(AppLocalizations.of(context)!.formSubmitted)),
                     );
                   }
                 },
-                child: Text('Submit'),
+                child: Text(AppLocalizations.of(context)!.submit),
               ),
             ],
           ),

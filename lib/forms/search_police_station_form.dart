@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class SearchPoliceStationForm extends StatelessWidget {
   const SearchPoliceStationForm({super.key});
@@ -6,8 +7,10 @@ class SearchPoliceStationForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Search Police Station')),
-      body: Center(child: Text('Search Police Station Form')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.searchPoliceStation)),
+      body: Center(
+        child: Text(AppLocalizations.of(context)!.formComingSoon),
+      ),
     );
   }
 }

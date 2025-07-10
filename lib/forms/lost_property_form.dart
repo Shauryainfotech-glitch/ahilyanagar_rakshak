@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class LostPropertyForm extends StatefulWidget {
   const LostPropertyForm({super.key});
@@ -27,7 +28,7 @@ class _LostPropertyFormState extends State<LostPropertyForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Lost Property')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.lostProperty)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -35,108 +36,106 @@ class _LostPropertyFormState extends State<LostPropertyForm> {
           child: ListView(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Applicant Name'),
-                validator: (value) => value == null || value.isEmpty ? 'Enter your name' : null,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.applicantName),
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterYourName : null,
                 onSaved: (value) => applicantName = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Contact Number'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.applicantContactNumber),
                 keyboardType: TextInputType.phone,
-                validator: (value) => value == null || value.isEmpty ? 'Enter contact number' : null,
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterContactNumber : null,
                 onSaved: (value) => contact = value,
               ),
               SizedBox(height: 12),
               TextFormField(
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.applicantEmail),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterEmail : null,
+                onSaved: (value) => email = value,
+              ),
+              SizedBox(height: 12),
+              DropdownButtonFormField<String>(
                 decoration: InputDecoration(labelText: 'Property Type'),
-                validator: (value) => value == null || value.isEmpty ? 'Enter property type' : null,
-                onSaved: (value) => propertyType = value,
+                items: [
+                  'Mobile Phone',
+                  'Wallet',
+                  'Keys',
+                  'Documents',
+                  'Jewelry',
+                  'Electronics',
+                  'Vehicle',
+                  'Other'
+                ].map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),
+                onChanged: (value) => setState(() => propertyType = value),
+                validator: (value) => value == null ? 'Please select property type' : null,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Lost Date'),
+                decoration: InputDecoration(labelText: 'Date Lost'),
+                validator: (value) => value == null || value.isEmpty ? 'Please enter date lost' : null,
                 onSaved: (value) => lostDate = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Location'),
+                decoration: InputDecoration(labelText: 'Location Where Lost'),
+                validator: (value) => value == null || value.isEmpty ? 'Please enter location' : null,
                 onSaved: (value) => location = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Description'),
-                maxLines: 3,
+                decoration: InputDecoration(labelText: 'Detailed Description'),
+                maxLines: 4,
+                validator: (value) => value == null || value.isEmpty ? 'Please provide detailed description' : null,
                 onSaved: (value) => description = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Email Address'),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) => value == null || value.isEmpty ? 'Enter email' : null,
-                onSaved: (value) => email = value,
-              ),
-              SizedBox(height: 12),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Alternate Contact Number'),
+                decoration: InputDecoration(labelText: 'Alternative Contact'),
                 keyboardType: TextInputType.phone,
                 onSaved: (value) => altContact = value,
               ),
               SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(labelText: 'Gender'),
-                items: ['Male', 'Female', 'Other']
-                    .map((g) => DropdownMenuItem(value: g, child: Text(g)))
-                    .toList(),
+                items: [
+                  'Male',
+                  'Female',
+                  'Other'
+                ].map((gender) => DropdownMenuItem(value: gender, child: Text(gender))).toList(),
                 onChanged: (value) => setState(() => gender = value),
-                validator: (value) => value == null ? 'Select gender' : null,
-              ),
-              SizedBox(height: 12),
-              GestureDetector(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime(2000),
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime.now(),
-                  );
-                  if (picked != null) setState(() => dob = picked);
-                },
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Date of Birth',
-                      hintText: dob == null ? 'Select date' : dob.toString().split(' ')[0],
-                    ),
-                    validator: (value) => dob == null ? 'Select date of birth' : null,
-                  ),
-                ),
+                validator: (value) => value == null ? 'Please select gender' : null,
               ),
               SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                decoration: InputDecoration(labelText: 'ID Proof Type'),
-                items: ['Aadhaar', 'PAN', 'Voter ID', 'Passport', 'Other']
-                    .map((id) => DropdownMenuItem(value: id, child: Text(id)))
-                    .toList(),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.idProofType),
+                items: [
+                  AppLocalizations.of(context)!.aadhaar,
+                  AppLocalizations.of(context)!.pan,
+                  AppLocalizations.of(context)!.voterId,
+                  AppLocalizations.of(context)!.passport,
+                  AppLocalizations.of(context)!.other
+                ].map((id) => DropdownMenuItem(value: id, child: Text(id))).toList(),
                 onChanged: (value) => setState(() => idProofType = value),
-                validator: (value) => value == null ? 'Select ID proof type' : null,
+                validator: (value) => value == null ? AppLocalizations.of(context)!.selectIdProofType : null,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'ID Proof Number'),
-                validator: (value) => value == null || value.isEmpty ? 'Enter ID proof number' : null,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.idProofNumber),
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterIdProofNumber : null,
                 onSaved: (value) => idProofNumber = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Emergency Contact Name'),
-                validator: (value) => value == null || value.isEmpty ? 'Enter emergency contact name' : null,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.emergencyContactName),
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterEmergencyContactName : null,
                 onSaved: (value) => emergencyContactName = value,
               ),
               SizedBox(height: 12),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Emergency Contact Number'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.emergencyContactNumber),
                 keyboardType: TextInputType.phone,
-                validator: (value) => value == null || value.isEmpty ? 'Enter emergency contact number' : null,
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.enterEmergencyContactNumber : null,
                 onSaved: (value) => emergencyContactNumber = value,
               ),
               SizedBox(height: 20),
@@ -145,11 +144,11 @@ class _LostPropertyFormState extends State<LostPropertyForm> {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Lost Property submitted!')),
+                      SnackBar(content: Text(AppLocalizations.of(context)!.formSubmitted)),
                     );
                   }
                 },
-                child: Text('Submit'),
+                child: Text(AppLocalizations.of(context)!.submit),
               ),
             ],
           ),

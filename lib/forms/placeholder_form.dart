@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class PlaceholderForm extends StatelessWidget {
   final String serviceName;
@@ -7,9 +8,9 @@ class PlaceholderForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(serviceName)),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.placeholder)),
       body: Center(
-        child: Text('Form for $serviceName will be implemented soon.', style: TextStyle(fontSize: 18)),
+        child: Text(AppLocalizations.of(context)!.formComingSoon),
       ),
     );
   }

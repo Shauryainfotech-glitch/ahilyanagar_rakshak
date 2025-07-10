@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'l10n/language_provider.dart';
+import 'l10n/app_localizations.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -114,7 +117,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       setState(() {
         isEditing = false;
       });
-      _showSuccessSnackBar('Profile updated successfully!');
+      _showSuccessSnackBar(AppLocalizations.of(context)!.profileUpdated);
     }
   }
 
@@ -135,34 +138,34 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               child: const Icon(Icons.logout_rounded, color: Color(0xFFE91E63), size: 24),
             ),
             const SizedBox(width: 12),
-            const Text(
-              'Logout',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)!.logout,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        content: const Text(
-          'Are you sure you want to logout?',
-          style: TextStyle(color: Colors.white70),
+        content: Text(
+          AppLocalizations.of(context)!.logoutConfirm,
+          style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Color(0xFF64B5F6)),
+            child: Text(
+              AppLocalizations.of(context)!.cancel,
+              style: const TextStyle(color: Color(0xFF64B5F6)),
             ),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _showSuccessSnackBar('Logged out successfully!');
+              _showSuccessSnackBar(AppLocalizations.of(context)!.loggedOut);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFE91E63),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Logout'),
+            child: Text(AppLocalizations.of(context)!.logout),
           ),
         ],
       ),
@@ -620,8 +623,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               Tab(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: const Text(
-                    'Profile',
+                  child: Text(
+                    AppLocalizations.of(context)!.personal,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -631,8 +634,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               Tab(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: const Text(
-                    'Settings',
+                  child: Text(
+                    AppLocalizations.of(context)!.settings,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -642,8 +645,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               Tab(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: const Text(
-                    'Security',
+                  child: Text(
+                    AppLocalizations.of(context)!.security,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -1070,6 +1073,9 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   }
 
   Widget _buildSettingsTab() {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final currentLanguage = languageProvider.currentLanguageName;
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
@@ -1078,17 +1084,17 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              _buildSettingsSection('Notifications', [
+              _buildSettingsSection(AppLocalizations.of(context)!.notifications, [
                 _buildSwitchTile(
                   Icons.notifications_rounded,
-                  'Push Notifications',
+                  AppLocalizations.of(context)!.notifications,
                   'Receive app notifications',
                   notificationsEnabled,
                   (value) => setState(() => notificationsEnabled = value),
                 ),
                 _buildSwitchTile(
                   Icons.emergency_rounded,
-                  'Emergency Alerts',
+                  AppLocalizations.of(context)!.emergencyAlerts,
                   'Get emergency notifications',
                   emergencyAlerts,
                   (value) => setState(() => emergencyAlerts = value),
@@ -1098,14 +1104,14 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               _buildSettingsSection('Location & Privacy', [
                 _buildSwitchTile(
                   Icons.location_on_rounded,
-                  'Location Services',
+                  AppLocalizations.of(context)!.locationServices,
                   'Allow location access',
                   locationEnabled,
                   (value) => setState(() => locationEnabled = value),
                   ),
                 _buildSwitchTile(
                   Icons.sync_rounded,
-                  'Auto Sync',
+                  AppLocalizations.of(context)!.autoSync,
                   'Automatically sync data',
                   autoSync,
                   (value) => setState(() => autoSync = value),
@@ -1113,16 +1119,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               ]),
               const SizedBox(height: 16),
               _buildSettingsSection('App Preferences', [
-                _buildDropdownTile(
-                  Icons.language_rounded,
-                  'Language',
-                  language,
-                  ['English', 'Hindi', 'Marathi'],
-                  (value) => setState(() => language = value!),
-                ),
+                _buildLanguageDropdown(languageProvider, currentLanguage),
                 _buildDropdownTile(
                   Icons.palette_rounded,
-                  'Theme',
+                  AppLocalizations.of(context)!.theme,
                   theme,
                   ['Dark', 'Light', 'Auto'],
                   (value) => setState(() => theme = value!),
@@ -1324,6 +1324,118 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     );
   }
 
+  Widget _buildLanguageDropdown(LanguageProvider languageProvider, String currentLanguage) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.02),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
+      ),
+      child: InkWell(
+        onTap: () => _showLanguageDialog(context, languageProvider),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF64B5F6).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.language_rounded, color: Color(0xFF64B5F6), size: 20),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.language,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    currentLanguage,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_drop_down_rounded, color: Color(0xFF64B5F6)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context, LanguageProvider languageProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2A2F45),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          AppLocalizations.of(context)!.selectLanguage,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: languageProvider.availableLanguages.map((lang) {
+            return ListTile(
+              title: Text(
+                lang['name']!,
+                style: const TextStyle(color: Colors.white),
+              ),
+              trailing: languageProvider.currentLocale.languageCode == lang['code']
+                  ? const Icon(Icons.check_rounded, color: Color(0xFF64B5F6))
+                  : null,
+              onTap: () {
+                languageProvider.changeLanguage(lang['code']!);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        const Icon(Icons.language_rounded, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            '${AppLocalizations.of(context)!.languageChangedTo} ${lang['name']}',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: const Color(0xFF4CAF50),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    margin: const EdgeInsets.all(16),
+                  ),
+                );
+              },
+            );
+          }).toList(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              AppLocalizations.of(context)!.cancel,
+              style: const TextStyle(color: Color(0xFF64B5F6)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDropdownTile(IconData icon, String title, String value, List<String> options, Function(String?) onChanged) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
@@ -1493,7 +1605,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _showSuccessSnackBar('Account deletion feature');
+              _showSuccessSnackBar(AppLocalizations.of(context)!.accountDeletionFeature);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFE91E63),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class LockedHouseInfoForm extends StatelessWidget {
   const LockedHouseInfoForm({super.key});
@@ -6,8 +7,10 @@ class LockedHouseInfoForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Locked House Information')),
-      body: Center(child: Text('Locked House Information Form')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.lockedHouseInfo)),
+      body: Center(
+        child: Text(AppLocalizations.of(context)!.formComingSoon),
+      ),
     );
   }
 }
