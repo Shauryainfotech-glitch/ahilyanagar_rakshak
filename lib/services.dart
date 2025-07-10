@@ -250,7 +250,19 @@ class ServiceCard extends StatelessWidget {
         leading: Icon(service.icon, size: 32),
         title: Text(
           service.name,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+            letterSpacing: 0.2,
+            shadows: [
+              Shadow(
+                color: Colors.white,
+                offset: Offset(0.5, 0.5),
+                blurRadius: 1,
+              ),
+            ],
+          ),
         ),
         trailing: ElevatedButton(
           style: ElevatedButton.styleFrom(

@@ -458,9 +458,11 @@ class HomePage extends StatelessWidget {
               ],
             ),
           ),
-          const IconButton(
+          IconButton(
             icon: Icon(Icons.search_rounded, color: Colors.white, size: 28),
-            onPressed: null,
+            onPressed: () {
+              _showAppWideSearchDialog(context);
+            },
           ),
           Stack(
             children: [
@@ -481,12 +483,6 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-          const SizedBox(width: 8),
-          const CircleAvatar(
-            radius: 20,
-            backgroundColor: Color(0xFF64B5F6),
-            child: Icon(Icons.person, color: Colors.white, size: 24),
           ),
         ],
       ),
@@ -522,7 +518,7 @@ class HomePage extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
-                child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 32),
+                child: Icon(Icons.person_rounded, color: Color(0xFFE91E63), size: 32),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -560,62 +556,84 @@ class HomePage extends StatelessWidget {
   Widget _buildQuickServicesSection(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF1E2337), Color(0xFF2A2F45)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black,
-              blurRadius: 15,
-              offset: Offset(0, 5),
+      child: SingleChildScrollView(
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1E2337), Color(0xFF2A2F45)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              Text(
-                AppLocalizations.of(context)!.quickServices,
-                style: TextStyle(
-                  color: Color(0xFF64B5F6),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20,
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Single row layout for quick services
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _ServiceIcon(
-                    icon: Icons.report_problem_rounded,
-                    label: AppLocalizations.of(context)!.fileComplaint,
-                    color: Color(0xFFFF9800),
-                  ),
-                  _ServiceIcon(
-                    icon: Icons.security_rounded,
-                    label: AppLocalizations.of(context)!.safetyTips,
-                    color: Color(0xFF4CAF50),
-                  ),
-                  _ServiceIcon(
-                    icon: Icons.bloodtype_rounded,
-                    label: AppLocalizations.of(context)!.bloodRequest,
-                    color: Color(0xFFE91E63),
-                  ),
-                  _ServiceIcon(
-                    icon: Icons.event_rounded,
-                    label: AppLocalizations.of(context)!.appointments,
-                    color: Color(0xFF9C27B0),
-                  ),
-                ],
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black,
+                blurRadius: 15,
+                offset: Offset(0, 5),
               ),
             ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.quickServices,
+                  style: TextStyle(
+                    color: Color(0xFF64B5F6),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Single row layout for quick services
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Flexible(
+                      child: _ServiceIcon(
+                        icon: Icons.report_problem_rounded,
+                        label: AppLocalizations.of(context)!.fileComplaint,
+                        color: Color(0xFFFF9800),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/complaint_registration');
+                        },
+                      ),
+                    ),
+                    Flexible(
+                      child: _ServiceIcon(
+                        icon: Icons.security_rounded,
+                        label: AppLocalizations.of(context)!.safetyTips,
+                        color: Color(0xFF4CAF50),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/cyber_security_info');
+                        },
+                      ),
+                    ),
+                    Flexible(
+                      child: _ServiceIcon(
+                        icon: Icons.bloodtype_rounded,
+                        label: AppLocalizations.of(context)!.bloodRequest,
+                        color: Color(0xFFE91E63),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/blood_request');
+                        },
+                      ),
+                    ),
+                    Flexible(
+                      child: _ServiceIcon(
+                        icon: Icons.event_rounded,
+                        label: AppLocalizations.of(context)!.appointments,
+                        color: Color(0xFF9C27B0),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/appointment_with_sho');
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -836,51 +854,57 @@ class _ServiceIcon extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final VoidCallback? onTap;
 
   const _ServiceIcon({
     required this.icon,
     required this.label,
     required this.color,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [color, color.withAlpha((0.7 * 255).toInt())],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withAlpha((0.3 * 255).toInt()),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [color, color.withAlpha((0.7 * 255).toInt())],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withAlpha((0.3 * 255).toInt()),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(icon, color: Colors.white, size: 24),
             ),
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -932,9 +956,9 @@ class _ContactIcon extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        const Text(
-          '100',
-          style: TextStyle(
+        Text(
+          phone,
+          style: const TextStyle(
             color: Color(0xFFFFD700),
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -1005,20 +1029,20 @@ class ServicesPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                                                        Text(
-                                AppLocalizations.of(context)!.policeServices,
-                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                AppLocalizations.of(context)!.accessAllServices,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: const Color(0xFF64B5F6),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                          Text(
+                            AppLocalizations.of(context)!.policeServices,
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            AppLocalizations.of(context)!.accessAllServices,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: const Color(0xFF64B5F6),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -1216,12 +1240,12 @@ class SectionCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(section.icon, color: Colors.white, size: 36),
-            const SizedBox(height: 12),
+            Icon(section.icon, color: Colors.white, size: 28), // smaller icon
+            const SizedBox(height: 8), // less spacing
             Text(
               section.title,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -2044,6 +2068,189 @@ class ServiceForm extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// Add this helper function to HomePage
+void _showAppWideSearchDialog(BuildContext context) {
+  final services = [
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.complaintRegistration, 'route': '/complaint_registration'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.mikeSanctionRegistration, 'route': '/mike_sanction_registration'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.firDownload, 'route': '/fir_download'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.accidentGd, 'route': '/accident_gd'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.lostProperty, 'route': '/lost_property'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.paymentHistory, 'route': '/payment_history'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.eventPerformance, 'route': '/event_performance'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.grievanceRedressal, 'route': '/grievance_redressal'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.arrestSearch, 'route': '/arrest_search'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.feedback, 'route': '/feedback'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.bloodDonor, 'route': '/blood_donor'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.bloodRequest, 'route': '/blood_request'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.trackMyTrip, 'route': '/track_my_trip'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.lockedHouseInfo, 'route': '/locked_house_info'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.seniorCitizenInfo, 'route': '/senior_citizen_info'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.singleWomenLivingAlone, 'route': '/single_women_living_alone'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.reportAbduction, 'route': '/report_abduction'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.reportCyberFraud, 'route': '/report_cyber_fraud'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.shareInformation, 'route': '/share_information'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.appointmentWithSho, 'route': '/appointment_with_sho'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.searchPoliceStation, 'route': '/search_police_station'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.cyberSecurityInfo, 'route': '/cyber_security_info'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.touristGuide, 'route': '/tourist_guide'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.userManual, 'route': '/user_manual'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.awarenessClasses, 'route': '/awareness_classes'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.ratePoliceStation, 'route': '/rate_police_station'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.rateApplication, 'route': '/rate_application'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.socialMediaOfPolice, 'route': '/social_media_of_police'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.maharashtraGovernment, 'route': '/maharashtra_government'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.ahilyanagarPolice, 'route': '/ahilyanagar_police'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.cyberDone, 'route': '/cyber_done'},
+    {'type': 'Service', 'title': AppLocalizations.of(context)!.policeChatbot, 'route': '/chatbot'},
+  ];
+  final contacts = [
+    {'type': 'Contact', 'title': 'Inspector Sharma', 'phone': '9876543210'},
+    {'type': 'Contact', 'title': 'SI Patil', 'phone': '9876543211'},
+    {'type': 'Contact', 'title': 'Constable Rao', 'phone': '9876543212'},
+    {'type': 'Contact', 'title': 'Inspector Deshmukh', 'phone': '9876543213'},
+    {'type': 'Contact', 'title': 'SI Singh', 'phone': '9876543214'},
+  ];
+  final emergency = [
+    {'type': 'Emergency', 'title': AppLocalizations.of(context)!.police, 'phone': '100'},
+    {'type': 'Emergency', 'title': AppLocalizations.of(context)!.ambulance, 'phone': '108'},
+    {'type': 'Emergency', 'title': AppLocalizations.of(context)!.fire, 'phone': '101'},
+  ];
+  final news = [
+    {'type': 'News', 'title': AppLocalizations.of(context)!.trafficDiversionTitle, 'desc': AppLocalizations.of(context)!.trafficDiversionSubtitle},
+    {'type': 'News', 'title': AppLocalizations.of(context)!.awarenessDriveTitle, 'desc': AppLocalizations.of(context)!.awarenessDriveSubtitle},
+    {'type': 'News', 'title': AppLocalizations.of(context)!.cyberSafetyTipsTitle, 'desc': AppLocalizations.of(context)!.cyberSafetyTipsSubtitle},
+  ];
+  final all = [...services, ...contacts, ...emergency, ...news];
+  showDialog(
+    context: context,
+    builder: (context) {
+      String query = '';
+      return StatefulBuilder(
+        builder: (context, setState) {
+          final filtered = all.where((item) {
+            final q = query.toLowerCase();
+            return item['title']!.toLowerCase().contains(q) || (item['desc']?.toLowerCase().contains(q) ?? false) || (item['phone']?.contains(q) ?? false);
+          }).toList();
+          final grouped = <String, List<Map<String, String>>>{};
+          for (var item in filtered) {
+            grouped.putIfAbsent(item['type']!, () => []).add(item);
+          }
+          return AlertDialog(
+            backgroundColor: const Color(0xFF23284A),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Text('Search', style: TextStyle(color: Colors.white)),
+            content: SingleChildScrollView(
+              child: SizedBox(
+                width: 350,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      autofocus: true,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Type to search...',
+                        hintStyle: TextStyle(color: Colors.white54),
+                        filled: true,
+                        fillColor: Color(0xFF2A2F45),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      onChanged: (val) => setState(() => query = val),
+                    ),
+                    const SizedBox(height: 16),
+                    if (filtered.isEmpty)
+                      Text('No results found.', style: TextStyle(color: Colors.white54)),
+                    if (filtered.isNotEmpty)
+                      SizedBox(
+                        height: 300,
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: grouped.entries.expand((entry) => [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: Text(entry.key, style: TextStyle(color: Color(0xFF64B5F6), fontWeight: FontWeight.bold)),
+                            ),
+                            ...entry.value.map((item) {
+                              if (item['type'] == 'Service') {
+                                return ListTile(
+                                  title: Text(item['title']!, style: TextStyle(color: Colors.white)),
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                    Navigator.pushNamed(context, item['route']!);
+                                  },
+                                );
+                              } else if (item['type'] == 'Contact' || item['type'] == 'Emergency') {
+                                return ListTile(
+                                  title: Text(item['title']!, style: TextStyle(color: Colors.white)),
+                                  subtitle: Text(item['phone']!, style: TextStyle(color: Colors.white70)),
+                                  trailing: Icon(Icons.call_rounded, color: Color(0xFF64B5F6)),
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                    // You can use url_launcher to make a call in a real app
+                                  },
+                                );
+                              } else if (item['type'] == 'News') {
+                                return ListTile(
+                                  title: Text(item['title']!, style: TextStyle(color: Colors.white)),
+                                  subtitle: Text(item['desc']!, style: TextStyle(color: Colors.white70)),
+                                );
+                              }
+                              return SizedBox.shrink();
+                            }).toList(),
+                          ]).toList(),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+class DraggableChatbotButton extends StatefulWidget {
+  @override
+  _DraggableChatbotButtonState createState() => _DraggableChatbotButtonState();
+}
+
+class _DraggableChatbotButtonState extends State<DraggableChatbotButton> {
+  Offset position = Offset(20, 500); // Initial position
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned(
+          left: position.dx,
+          top: position.dy,
+          child: GestureDetector(
+            onPanUpdate: (details) {
+              setState(() {
+                position += details.delta;
+              });
+            },
+            child: FloatingActionButton(
+              backgroundColor: Color(0xFF64B5F6),
+              onPressed: () {
+                Navigator.pushNamed(context, '/chatbot');
+              },
+              child: Icon(Icons.smart_toy_rounded, color: Colors.white),
+              tooltip: AppLocalizations.of(context)!.aiAssistant,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

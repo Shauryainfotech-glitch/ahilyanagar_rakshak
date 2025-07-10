@@ -570,90 +570,92 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          // Remove width: double.infinity so it only takes as much space as needed
-          margin: EdgeInsets.symmetric(
-            horizontal: 0,
-            vertical: isDesktop ? 24 : isTablet ? 20 : 16,
-          ),
-          decoration: BoxDecoration(
-            color: const Color(0xFF2A2F45),
-            borderRadius: BorderRadius.circular(isDesktop ? 20 : 16),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: TabBar(
-            isScrollable: true,
-            controller: _tabController,
-            onTap: (index) {
-              setState(() {});
-            },
-            indicator: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(isDesktop ? 16 : 12),
+        Expanded(
+          child: Container(
+            // Remove width: double.infinity so it only takes as much space as needed
+            margin: EdgeInsets.symmetric(
+              horizontal: 0,
+              vertical: isDesktop ? 24 : isTablet ? 20 : 16,
+            ),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A2F45),
+              borderRadius: BorderRadius.circular(isDesktop ? 20 : 16),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF3F51B5).withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white60,
-            labelStyle: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: isDesktop ? 16 : isTablet ? 15 : 13,
+            child: TabBar(
+              isScrollable: true,
+              controller: _tabController,
+              onTap: (index) {
+                setState(() {});
+              },
+              indicator: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(isDesktop ? 16 : 12),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF3F51B5).withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white60,
+              labelStyle: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: isDesktop ? 16 : isTablet ? 15 : 13,
+              ),
+              unselectedLabelStyle: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: isDesktop ? 16 : isTablet ? 15 : 13,
+              ),
+              tabs: [
+                Tab(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
+                    child: Text(
+                      AppLocalizations.of(context)!.personal,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
+                ),
+                Tab(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
+                    child: Text(
+                      AppLocalizations.of(context)!.settings,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
+                ),
+                Tab(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
+                    child: Text(
+                      AppLocalizations.of(context)!.security,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            unselectedLabelStyle: TextStyle(
-              fontWeight: FontWeight.w400,
-              fontSize: isDesktop ? 16 : isTablet ? 15 : 13,
-            ),
-            tabs: [
-              Tab(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: Text(
-                    AppLocalizations.of(context)!.personal,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-              Tab(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: Text(
-                    AppLocalizations.of(context)!.settings,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-              Tab(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: Text(
-                    AppLocalizations.of(context)!.security,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ],
