@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'l10n/language_provider.dart';
@@ -915,7 +916,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           _buildInfoTile(Icons.email_rounded, 'Email Address', email, const Color(0xFF4CAF50)),
           _buildInfoTile(Icons.phone_rounded, 'Phone Number', phone, const Color(0xFF2196F3)),
           _buildInfoTile(Icons.location_on_rounded, 'Address', address, const Color(0xFFFF9800)),
-          _buildInfoTile(Icons.calendar_today_rounded, 'Date of Birth', 
+          _buildInfoTile(Icons.calendar_today_rounded, 'Date of Birth',
               dob != null ? "${dob!.day}/${dob!.month}/${dob!.year}" : '-', const Color(0xFF9C27B0)),
           _buildInfoTile(Icons.wc_rounded, 'Gender', gender, const Color(0xFFE91E63)),
         ]),
@@ -1618,3 +1619,4 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     );
   }
 }
+

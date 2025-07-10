@@ -626,76 +626,80 @@ class _EmergencySection extends StatelessWidget {
           ),
           SizedBox(height: 16),
           
-          ...filtered.map((emergency) => Container(
-            margin: EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: Color(0xFF2A2F45),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: ListTile(
-              contentPadding: EdgeInsets.all(16),
-              leading: Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: emergency['color'].withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(emergency['icon'], color: emergency['color'], size: 24),
-              ),
-              title: Text(
-                emergency['name'],
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 4),
-                  Text(
-                    emergency['description'],
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    emergency['number'],
-                    style: TextStyle(
-                      color: emergency['color'],
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+          ...filtered.map((emergency) => InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => _callNumber(emergency['number'], context),
+            child: Container(
+              margin: EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Color(0xFF2A2F45),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
                   ),
                 ],
               ),
-              trailing: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [emergency['color'], emergency['color'].withOpacity(0.7)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              child: ListTile(
+                contentPadding: EdgeInsets.all(16),
+                leading: Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: emergency['color'].withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: emergency['color'].withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
+                  child: Icon(emergency['icon'], color: emergency['color'], size: 24),
+                ),
+                title: Text(
+                  emergency['name'],
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 4),
+                    Text(
+                      emergency['description'],
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      emergency['number'],
+                      style: TextStyle(
+                        color: emergency['color'],
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
-                child: IconButton(
-                  icon: Icon(Icons.call_rounded, color: Colors.white),
-                  onPressed: () => _callNumber(emergency['number'], context),
+                trailing: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [emergency['color'], emergency['color'].withOpacity(0.7)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: emergency['color'].withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.call_rounded, color: Colors.white),
+                    onPressed: () => _callNumber(emergency['number'], context),
+                  ),
                 ),
               ),
             ),

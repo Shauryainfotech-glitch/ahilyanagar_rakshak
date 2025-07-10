@@ -8,6 +8,8 @@ import 'registration_page.dart';
 import 'sos_button.dart';
 import 'l10n/language_provider.dart';
 import 'l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 // Form imports
 import 'forms/complaint_registration_form.dart';
@@ -366,8 +368,15 @@ class _MainNavigationState extends State<MainNavigation>
 
 
 // Modern App Header for HomePage
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -382,10 +391,11 @@ class HomePage extends StatelessWidget {
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 120), // Add bottom padding for FAB and navbar
+            padding: const EdgeInsets.only(bottom: 120),
             child: Column(
               children: [
                 _buildHeader(context),
+                _buildSearchBar(context),
                 _buildAlertSection(context),
                 _buildQuickServicesSection(context),
                 _buildEmergencyContactsSection(context),
@@ -394,6 +404,31 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: TextField(
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value.trim().toLowerCase();
+          });
+        },
+        decoration: InputDecoration(
+          hintText: 'Search quick services...',
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF64B5F6)),
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.07),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          hintStyle: const TextStyle(color: Colors.white54),
+        ),
+        style: const TextStyle(color: Colors.white),
       ),
     );
   }
@@ -458,15 +493,28 @@ class HomePage extends StatelessWidget {
               ],
             ),
           ),
-          const IconButton(
-            icon: Icon(Icons.search_rounded, color: Colors.white, size: 28),
-            onPressed: null,
+          IconButton(
+            icon: const Icon(Icons.search_rounded, color: Colors.white, size: 28),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Search'),
+                  content: const Text('Search functionality coming soon!'),
+                  actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK'))],
+                ),
+              );
+            },
           ),
           Stack(
             children: [
-              const IconButton(
-                icon: Icon(Icons.notifications_rounded, color: Colors.white, size: 28),
-                onPressed: null,
+              IconButton(
+                icon: const Icon(Icons.notifications_rounded, color: Colors.white, size: 28),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No new notifications.')),
+                  );
+                },
               ),
               Positioned(
                 right: 8,
@@ -483,11 +531,7 @@ class HomePage extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 8),
-          const CircleAvatar(
-            radius: 20,
-            backgroundColor: Color(0xFF64B5F6),
-            child: Icon(Icons.person, color: Colors.white, size: 24),
-          ),
+          // Profile icon removed as per user request
         ],
       ),
     );
@@ -558,6 +602,15 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildQuickServicesSection(BuildContext context) {
+    final allServices = [
+      {'icon': Icons.report_problem_rounded, 'label': AppLocalizations.of(context)!.fileComplaint, 'color': Color(0xFFFF9800), 'route': '/complaint_registration'},
+      {'icon': Icons.security_rounded, 'label': AppLocalizations.of(context)!.safetyTips, 'color': Color(0xFF4CAF50), 'route': '/cyber_security_info'},
+      {'icon': Icons.bloodtype_rounded, 'label': AppLocalizations.of(context)!.bloodRequest, 'color': Color(0xFFE91E63), 'route': '/blood_request'},
+      {'icon': Icons.event_rounded, 'label': AppLocalizations.of(context)!.appointments, 'color': Color(0xFF9C27B0), 'route': '/appointment_with_sho'},
+    ];
+    final filtered = _searchQuery.isEmpty
+        ? allServices
+        : allServices.where((s) => s['label'].toString().toLowerCase().contains(_searchQuery)).toList();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
       child: Container(
@@ -589,31 +642,16 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              // Single row layout for quick services
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _ServiceIcon(
-                    icon: Icons.report_problem_rounded,
-                    label: AppLocalizations.of(context)!.fileComplaint,
-                    color: Color(0xFFFF9800),
-                  ),
-                  _ServiceIcon(
-                    icon: Icons.security_rounded,
-                    label: AppLocalizations.of(context)!.safetyTips,
-                    color: Color(0xFF4CAF50),
-                  ),
-                  _ServiceIcon(
-                    icon: Icons.bloodtype_rounded,
-                    label: AppLocalizations.of(context)!.bloodRequest,
-                    color: Color(0xFFE91E63),
-                  ),
-                  _ServiceIcon(
-                    icon: Icons.event_rounded,
-                    label: AppLocalizations.of(context)!.appointments,
-                    color: Color(0xFF9C27B0),
-                  ),
-                ],
+                children: filtered.isEmpty
+                    ? [Text('No services found', style: TextStyle(color: Colors.white54))]
+                    : filtered.map((s) => _ServiceIcon(
+                        icon: s['icon'] as IconData,
+                        label: s['label'] as String,
+                        color: s['color'] as Color,
+                        route: s['route'] as String?,
+                      )).toList(),
               ),
             ],
           ),
@@ -665,6 +703,7 @@ class HomePage extends StatelessWidget {
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     _ContactIcon(
                       icon: Icons.local_police_rounded,
@@ -685,6 +724,20 @@ class HomePage extends StatelessWidget {
                       label: AppLocalizations.of(context)!.fire,
                       phone: '101',
                       color: const Color(0xFFFF9800),
+                    ),
+                    const SizedBox(width: 16),
+                    _ContactIcon(
+                      icon: Icons.female,
+                      label: AppLocalizations.of(context)!.womenHelpline ?? 'Women Helpline',
+                      phone: '1091', // National Women Helpline
+                      color: const Color(0xFF8E24AA),
+                    ),
+                    const SizedBox(width: 16),
+                    _ContactIcon(
+                      icon: Icons.child_care,
+                      label: AppLocalizations.of(context)!.childHelpline ?? 'Child Helpline',
+                      phone: '1098', // National Child Helpline
+                      color: const Color(0xFF43A047),
                     ),
                   ],
                 ),
@@ -784,49 +837,61 @@ class _UpdateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2A2F45),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withAlpha((0.2 * 255).toInt())),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withAlpha((0.1 * 255).toInt()),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 24),
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(title),
+            content: Text(subtitle),
+            actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK'))],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2A2F45),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withAlpha((0.2 * 255).toInt())),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withAlpha((0.1 * 255).toInt()),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 24),
             ),
-          ),
-        ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -836,51 +901,66 @@ class _ServiceIcon extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final String? route;
 
   const _ServiceIcon({
     required this.icon,
     required this.label,
     required this.color,
+    this.route,
   });
+
+  void _onTap(BuildContext context) {
+    if (route != null) {
+      Navigator.pushNamed(context, route!);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tapped on: ' + label)),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [color, color.withAlpha((0.7 * 255).toInt())],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withAlpha((0.3 * 255).toInt()),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+      child: GestureDetector(
+        onTap: () => _onTap(context),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [color, color.withAlpha((0.7 * 255).toInt())],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withAlpha((0.3 * 255).toInt()),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(icon, color: Colors.white, size: 24),
             ),
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -901,46 +981,68 @@ class _ContactIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [color, color.withAlpha((0.7 * 255).toInt())],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: color.withAlpha((0.3 * 255).toInt()),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () async {
+        final Uri phoneUri = Uri(scheme: 'tel', path: phone);
+        try {
+          if (await canLaunchUrl(phoneUri)) {
+            await launchUrl(phoneUri, mode: LaunchMode.externalApplication);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Could not launch phone dialer')),
+            );
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ' + e.toString())),
+          );
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [color, color.withAlpha((0.7 * 255).toInt())],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withAlpha((0.3 * 255).toInt()),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Icon(icon, color: Colors.white, size: 24),
+              child: Icon(icon, color: Colors.white, size: 24),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              phone, // Use the phone number passed to the widget
+              style: const TextStyle(
+                color: Color(0xFFFFD700),
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          '100',
-          style: TextStyle(
-            color: Color(0xFFFFD700),
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -1005,20 +1107,20 @@ class ServicesPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                                                        Text(
-                                AppLocalizations.of(context)!.policeServices,
-                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                AppLocalizations.of(context)!.accessAllServices,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: const Color(0xFF64B5F6),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                          Text(
+                            AppLocalizations.of(context)!.policeServices,
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            AppLocalizations.of(context)!.accessAllServices,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: const Color(0xFF64B5F6),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -1401,10 +1503,10 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
                           ),
                         ],
                       ),
-                                              child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: AppLocalizations.of(context)!.searchContacts,
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)!.searchContacts,
                           prefixIcon: Icon(Icons.search_rounded, color: Color(0xFF64B5F6)),
                           filled: true,
                           fillColor: Color(0xFF2A2F45),
@@ -1768,33 +1870,166 @@ class _EmergencySection extends StatelessWidget {
             ),
 
             // Emergency Contacts Section
-            Text(
-              AppLocalizations.of(context)!.emergencyContacts,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFFFFD700),
-                letterSpacing: 0.5,
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF283366), Color(0xFF1B223A)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.20),
+                    blurRadius: 22,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+                border: Border.all(
+                  color: const Color(0xFFFFD700),
+                  width: 2.5,
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            _EmergencyContactCard(
-              title: AppLocalizations.of(context)!.policeDepartment,
-              phone: '100',
-              color: Color(0xFF2196F3),
-              icon: Icons.local_police_rounded,
-            ),
-            _EmergencyContactCard(
-              title: AppLocalizations.of(context)!.ambulanceService,
-              phone: '108',
-              color: Color(0xFFE91E63),
-              icon: Icons.local_hospital_rounded,
-            ),
-            _EmergencyContactCard(
-              title: AppLocalizations.of(context)!.fireDepartment,
-              phone: '101',
-              color: Color(0xFFFF9800),
-              icon: Icons.local_fire_department_rounded,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.emergencyContacts,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFFFFD700),
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            // Call Police
+                            launchUrl(Uri.parse('tel:100'));
+                          },
+                          child: Column(
+                            children: [
+                              _EmergencyContactCard(
+                                title: AppLocalizations.of(context)!.policeDepartment,
+                                phone: '100',
+                                color: Color(0xFF2196F3),
+                                icon: Icons.local_police_rounded,
+                                borderColor: Color(0xFF2196F3),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            // Call Ambulance
+                            launchUrl(Uri.parse('tel:108'));
+                          },
+                          child: Column(
+                            children: [
+                              _EmergencyContactCard(
+                                title: AppLocalizations.of(context)!.ambulanceService,
+                                phone: '108',
+                                color: Color(0xFFE91E63),
+                                icon: Icons.local_hospital_rounded,
+                                borderColor: Color(0xFFE91E63),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            // Call Fire
+                            launchUrl(Uri.parse('tel:101'));
+                          },
+                          child: Column(
+                            children: [
+                              _EmergencyContactCard(
+                                title: AppLocalizations.of(context)!.fireDepartment,
+                                phone: '101',
+                                color: Color(0xFFFF9800),
+                                icon: Icons.local_fire_department_rounded,
+                                borderColor: Color(0xFFFF9800),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            // Call Women Helpline
+                            launchUrl(Uri.parse('tel:1091'));
+                          },
+                          child: Column(
+                            children: [
+                              _EmergencyContactCard(
+                                title: AppLocalizations.of(context)!.womenHelpline,
+                                phone: '1091',
+                                color: Color(0xFF8E24AA),
+                                icon: Icons.female,
+                                borderColor: Color(0xFF8E24AA),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Helpline',
+                                style: TextStyle(
+                                  color: Color(0xFF8E24AA),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            // Call Child Helpline
+                            launchUrl(Uri.parse('tel:1098'));
+                          },
+                          child: Column(
+                            children: [
+                              _EmergencyContactCard(
+                                title: AppLocalizations.of(context)!.childHelpline,
+                                phone: '1098',
+                                color: Color(0xFF43A047),
+                                icon: Icons.child_care,
+                                borderColor: Color(0xFF43A047),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Helpline',
+                                style: TextStyle(
+                                  color: Color(0xFF43A047),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -1808,105 +2043,99 @@ class _EmergencyContactCard extends StatelessWidget {
   final String phone;
   final Color color;
   final IconData icon;
+  final Color borderColor;
 
-  _EmergencyContactCard({
+  const _EmergencyContactCard({
     required this.title,
     required this.phone,
     required this.color,
     required this.icon,
-  });
+    required this.borderColor,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF1E2337), Color(0xFF2A2F45)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+      width: 100,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: borderColor,
+          width: 3.5,
         ),
-        borderRadius: BorderRadius.all(Radius.circular(16)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black,
-            blurRadius: 8,
-            offset: Offset(0, 2),
+            color: borderColor.withOpacity(0.25),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [color, color.withAlpha((0.7 * 255).toInt())],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: color.withAlpha((0.3 * 255).toInt()),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(13),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.22),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.20),
+                width: 1.2,
               ),
-            ],
-          ),
-          child: Icon(icon, color: Colors.white, size: 24),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
-        subtitle: Text(
-          phone,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 14,
-          ),
-        ),
-        trailing: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [color, color.withAlpha((0.7 * 255).toInt())],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
             ),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: color.withAlpha((0.3 * 255).toInt()),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            child: Icon(icon, color: Colors.white, size: 36),
           ),
-          child: ElevatedButton(
-            onPressed: null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          const SizedBox(height: 14),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 15,
+              letterSpacing: 0.3,
             ),
-            child: Text(
-              AppLocalizations.of(context)!.call,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            phone,
+            style: TextStyle(
+              color: color.withOpacity(0.98),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.3,
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: null, // keep as is, or add call logic
+              icon: const Icon(Icons.call, size: 20, color: Colors.white),
+              label: Text(
+                AppLocalizations.of(context)!.call,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: color.withOpacity(0.95),
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 10),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -2047,4 +2276,3 @@ class ServiceForm extends StatelessWidget {
     );
   }
 }
-
