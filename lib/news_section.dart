@@ -74,7 +74,7 @@ class _NewsSectionState extends State<NewsSection> {
         title: Text('Daily Updates'),
         actions: [
           IconButton(
-            icon: isLoading ? CircularProgressIndicator(color: Colors.white) : Icon(Icons.refresh),
+            icon: isLoading ? CircularProgressIndicator(color: Theme.of(context).colorScheme.onSurface) : Icon(Icons.refresh),
             onPressed: isLoading ? null : refreshNews,
             tooltip: 'Refresh',
           ),
@@ -95,10 +95,10 @@ class _NewsSectionState extends State<NewsSection> {
                     label: Text(cat),
                     selected: selected,
                     onSelected: (_) => setState(() => selectedCategory = cat),
-                    selectedColor: Colors.amber.shade700,
-                    backgroundColor: Colors.grey.shade200,
+                    selectedColor: Theme.of(context).colorScheme.primary,
+                    backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                     labelStyle: TextStyle(
-                      color: selected ? Colors.white : Colors.black87,
+                      color: selected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).textTheme.bodyLarge?.color,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -141,7 +141,7 @@ class _NewsCard extends StatelessWidget {
         );
       },
       child: Card(
-        color: highlight ? Colors.amber.shade100 : Colors.white,
+        color: highlight ? Theme.of(context).colorScheme.surfaceVariant : Theme.of(context).colorScheme.surface,
         elevation: highlight ? 6 : 2,
         margin: EdgeInsets.symmetric(vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -150,7 +150,7 @@ class _NewsCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(news['image'], size: 40, color: highlight ? Colors.amber.shade800 : Colors.blueGrey),
+              Icon(news['image'], size: 40, color: highlight ? Theme.of(context).colorScheme.primary : Theme.of(context).iconTheme.color),
               SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -163,14 +163,14 @@ class _NewsCard extends StatelessWidget {
                     SizedBox(height: 4),
                     Text(
                       _formatDate(news['date']),
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodySmall?.color),
                     ),
                     SizedBox(height: 8),
                     Text(
                       news['description'],
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                      style: TextStyle(fontSize: 14, color: Theme.of(context).textTheme.bodyLarge?.color),
                     ),
                   ],
                 ),
@@ -207,7 +207,7 @@ class NewsDetailPage extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(news['image'], size: 48, color: Colors.blueGrey),
+                Icon(news['image'], size: 48, color: Theme.of(context).iconTheme.color),
                 SizedBox(width: 16),
                 Expanded(
                   child: Text(
@@ -218,7 +218,7 @@ class NewsDetailPage extends StatelessWidget {
               ],
             ),
             SizedBox(height: 12),
-            Text(_formatDate(news['date']), style: TextStyle(color: Colors.grey[700], fontSize: 14)),
+            Text(_formatDate(news['date']), style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color, fontSize: 14)),
             SizedBox(height: 18),
             Text(news['description'], style: TextStyle(fontSize: 16)),
             // You can add more details, images, or links here

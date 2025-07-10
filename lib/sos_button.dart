@@ -170,6 +170,14 @@ class _SOSButtonState extends State<SOSButton> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
+    final iconColor = Theme.of(context).iconTheme.color ?? Colors.white;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.white;
+    final subTextColor = Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? Colors.white70;
+    final mainGradient = isDark
+        ? [Color(0xFFE91E63), Color(0xFFC2185B)]
+        : [Color(0xFFFFC1E3), Color(0xFFF8BBD0)];
     return Semantics(
       label: 'SOS Button. Press to send an emergency alert.',
       button: true,

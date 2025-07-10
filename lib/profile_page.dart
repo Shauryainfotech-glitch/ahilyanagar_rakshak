@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'l10n/language_provider.dart';
 import 'l10n/app_localizations.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'theme_provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -43,6 +46,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   int emergencyCalls = 3;
   int safetyTips = 8;
 
+  final LocalAuthentication auth = LocalAuthentication();
+
   @override
   void initState() {
     super.initState();
@@ -63,6 +68,19 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     _dobController.text = "${dob!.year}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}";
     
     _animationController.forward();
+    _loadBiometricPreference();
+  }
+
+  Future<void> _loadBiometricPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      biometricEnabled = prefs.getBool('biometricEnabled') ?? false;
+    });
+  }
+
+  Future<void> _saveBiometricPreference(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('biometricEnabled', value);
   }
 
   @override
@@ -117,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       setState(() {
         isEditing = false;
       });
-      _showSuccessSnackBar(AppLocalizations.of(context)!.profileUpdated);
+      _showSuccessSnackBar(AppLocalizations.of(context).profileUpdated);
     }
   }
 
@@ -125,47 +143,47 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2A2F45),
+        backgroundColor: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFE91E63).withOpacity(0.2),
+                color: Theme.of(context).colorScheme.error.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.logout_rounded, color: Color(0xFFE91E63), size: 24),
             ),
             const SizedBox(width: 12),
             Text(
-              AppLocalizations.of(context)!.logout,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              AppLocalizations.of(context).logout,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
             ),
           ],
         ),
         content: Text(
-          AppLocalizations.of(context)!.logoutConfirm,
-          style: const TextStyle(color: Colors.white70),
+          AppLocalizations.of(context).logoutConfirm,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              AppLocalizations.of(context)!.cancel,
-              style: const TextStyle(color: Color(0xFF64B5F6)),
+              AppLocalizations.of(context).cancel,
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _showSuccessSnackBar(AppLocalizations.of(context)!.loggedOut);
+              _showSuccessSnackBar(AppLocalizations.of(context).loggedOut);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE91E63),
+              backgroundColor: Theme.of(context).colorScheme.error,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: Text(AppLocalizations.of(context)!.logout),
+            child: Text(AppLocalizations.of(context).logout),
           ),
         ],
       ),
@@ -180,7 +198,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
@@ -189,12 +207,12 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF4CAF50),
+        backgroundColor: Theme.of(context).colorScheme.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         margin: const EdgeInsets.all(16),
@@ -205,11 +223,22 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final currentLanguage = languageProvider.availableLanguages.firstWhere(
+      (lang) => lang['code'] == languageProvider.currentLocale.languageCode,
+      orElse: () => {'name': 'English'},
+    )['name'] ?? 'English';
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mainGradient = isDark
+        ? [Color(0xFF0A0E21), Color(0xFF1A1F35)]
+        : [Color(0xFFF5F5F5), Color(0xFFE0E0E0)];
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0A0E21), Color(0xFF1A1F35)],
+            colors: mainGradient,
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -239,22 +268,21 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
     final isDesktop = screenWidth > 900;
-    
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final headerGradient = isDark
+        ? [Color(0xFF1A1F35), Color(0xFF2A2F45), Color(0xFF1A1F35)]
+        : [Color(0xFFF5F5F5), Color(0xFFE0E0E0), Color(0xFFF5F5F5)];
     return Container(
       padding: EdgeInsets.all(isDesktop ? 32 : isTablet ? 24 : 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            const Color(0xFF1A1F35),
-            const Color(0xFF2A2F45),
-            const Color(0xFF1A1F35),
-          ],
+          colors: headerGradient,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -305,13 +333,13 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             ),
             child: CircleAvatar(
               radius: 35,
-              backgroundColor: const Color(0xFF2A2F45),
+              backgroundColor: Theme.of(context).cardColor,
               child: Text(
                 name.split(' ').map((e) => e[0]).join('').toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -324,8 +352,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             children: [
               Text(
                 name,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
@@ -334,7 +362,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               Text(
                 'Ahilyanagar Police App User',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   fontSize: 14,
                 ),
               ),
@@ -347,10 +375,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
+                child: Text(
                   'Verified User',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -377,7 +405,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           child: IconButton(
             icon: Icon(
               isEditing ? Icons.save_rounded : Icons.edit_rounded,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
               size: 20,
             ),
             onPressed: isEditing ? _saveProfile : _toggleEdit,
@@ -412,13 +440,13 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             ),
             child: CircleAvatar(
               radius: 50,
-              backgroundColor: const Color(0xFF2A2F45),
+              backgroundColor: Theme.of(context).cardColor,
               child: Text(
                 name.split(' ').map((e) => e[0]).join('').toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -431,8 +459,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             children: [
               Text(
                 name,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                 ),
@@ -441,7 +469,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               Text(
                 'Ahilyanagar Police App User',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   fontSize: 18,
                 ),
               ),
@@ -454,10 +482,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Text(
+                child: Text(
                   'Verified User',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -484,7 +512,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           child: IconButton(
             icon: Icon(
               isEditing ? Icons.save_rounded : Icons.edit_rounded,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
               size: 28,
             ),
             onPressed: isEditing ? _saveProfile : _toggleEdit,
@@ -497,11 +525,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   Widget _buildMobileStats() {
     return Row(
       children: [
-        Expanded(child: _buildStatCard('Reports', totalReports, Icons.report_rounded, const Color(0xFF2196F3))),
+        Expanded(child: _buildStatCard('Reports', totalReports, Icons.report_rounded, Theme.of(context).colorScheme.primary)),
         const SizedBox(width: 12),
-        Expanded(child: _buildStatCard('Emergency', emergencyCalls, Icons.emergency_rounded, const Color(0xFFE91E63))),
+        Expanded(child: _buildStatCard('Emergency', emergencyCalls, Icons.emergency_rounded, Theme.of(context).colorScheme.error)),
         const SizedBox(width: 12),
-        Expanded(child: _buildStatCard('Safety Tips', safetyTips, Icons.security_rounded, const Color(0xFF4CAF50))),
+        Expanded(child: _buildStatCard('Safety Tips', safetyTips, Icons.security_rounded, Theme.of(context).colorScheme.primary)),
       ],
     );
   }
@@ -509,11 +537,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   Widget _buildDesktopStats() {
     return Row(
       children: [
-        Expanded(child: _buildStatCard('Reports', totalReports, Icons.report_rounded, const Color(0xFF2196F3))),
+        Expanded(child: _buildStatCard('Reports', totalReports, Icons.report_rounded, Theme.of(context).colorScheme.primary)),
         const SizedBox(width: 20),
-        Expanded(child: _buildStatCard('Emergency', emergencyCalls, Icons.emergency_rounded, const Color(0xFFE91E63))),
+        Expanded(child: _buildStatCard('Emergency', emergencyCalls, Icons.emergency_rounded, Theme.of(context).colorScheme.error)),
         const SizedBox(width: 20),
-        Expanded(child: _buildStatCard('Safety Tips', safetyTips, Icons.security_rounded, const Color(0xFF4CAF50))),
+        Expanded(child: _buildStatCard('Safety Tips', safetyTips, Icons.security_rounded, Theme.of(context).colorScheme.primary)),
       ],
     );
   }
@@ -567,96 +595,91 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     final isTablet = screenWidth > 600;
     final isDesktop = screenWidth > 900;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          // Remove width: double.infinity so it only takes as much space as needed
-          margin: EdgeInsets.symmetric(
-            horizontal: 0,
-            vertical: isDesktop ? 24 : isTablet ? 20 : 16,
+    // Remove Row and return Container directly
+    return Container(
+      margin: EdgeInsets.symmetric(
+        horizontal: 0,
+        vertical: isDesktop ? 24 : isTablet ? 20 : 16,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(isDesktop ? 20 : 16),
+        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
-          decoration: BoxDecoration(
-            color: const Color(0xFF2A2F45),
-            borderRadius: BorderRadius.circular(isDesktop ? 20 : 16),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
+        ],
+      ),
+      child: TabBar(
+        isScrollable: true,
+        controller: _tabController,
+        onTap: (index) {
+          setState(() {});
+        },
+        indicator: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
-          child: TabBar(
-            isScrollable: true,
-            controller: _tabController,
-            onTap: (index) {
-              setState(() {});
-            },
-            indicator: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(isDesktop ? 16 : 12),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF3F51B5).withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+          borderRadius: BorderRadius.circular(isDesktop ? 16 : 12),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF3F51B5).withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white60,
-            labelStyle: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: isDesktop ? 16 : isTablet ? 15 : 13,
-            ),
-            unselectedLabelStyle: TextStyle(
-              fontWeight: FontWeight.w400,
-              fontSize: isDesktop ? 16 : isTablet ? 15 : 13,
-            ),
-            tabs: [
-              Tab(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: Text(
-                    AppLocalizations.of(context)!.personal,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-              Tab(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: Text(
-                    AppLocalizations.of(context)!.settings,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-              Tab(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: Text(
-                    AppLocalizations.of(context)!.security,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
-      ],
+        labelColor: Theme.of(context).colorScheme.onSurface,
+        unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+        labelStyle: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: isDesktop ? 16 : isTablet ? 15 : 13,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.w400,
+          fontSize: isDesktop ? 16 : isTablet ? 15 : 13,
+        ),
+        tabs: [
+          Tab(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
+              child: Text(
+                AppLocalizations.of(context)!.personal,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ),
+          Tab(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
+              child: Text(
+                AppLocalizations.of(context)!.settings,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ),
+          Tab(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
+              child: Text(
+                AppLocalizations.of(context)!.security,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -707,7 +730,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.1)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.3),
@@ -761,9 +784,9 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Save Changes',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
                       ),
                     ),
                   ),
@@ -775,11 +798,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      side: const BorderSide(color: Color(0xFF64B5F6), width: 2),
+                      side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Cancel',
-                      style: TextStyle(color: Color(0xFF64B5F6), fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ),
                 ),
@@ -800,28 +823,28 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           margin: const EdgeInsets.all(8),
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF64B5F6).withOpacity(0.1),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: const Color(0xFF64B5F6), size: 20),
+          child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.2)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF64B5F6), width: 2),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
-        labelStyle: const TextStyle(color: Colors.white70),
+        fillColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
       ),
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       maxLines: maxLines,
       onSaved: onSaved,
       validator: (val) {
@@ -842,28 +865,28 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           margin: const EdgeInsets.all(8),
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF64B5F6).withOpacity(0.1),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(Icons.calendar_today_rounded, color: Color(0xFF64B5F6), size: 20),
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.2)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF64B5F6), width: 2),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
-        labelStyle: const TextStyle(color: Colors.white70),
+        fillColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
       ),
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       onTap: () => _selectDate(context),
     );
   }
@@ -872,7 +895,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     return DropdownButtonFormField<String>(
       value: gender.isNotEmpty ? gender : null,
       items: ['Male', 'Female', 'Other']
-          .map((g) => DropdownMenuItem(value: g, child: Text(g, style: const TextStyle(color: Colors.white))))
+          .map((g) => DropdownMenuItem(value: g, child: Text(g, style: TextStyle(color: Theme.of(context).colorScheme.onSurface))))
           .toList(),
       onChanged: (val) => setState(() => gender = val ?? ''),
       decoration: InputDecoration(
@@ -881,29 +904,29 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           margin: const EdgeInsets.all(8),
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF64B5F6).withOpacity(0.1),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(Icons.wc_rounded, color: Color(0xFF64B5F6), size: 20),
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.2)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF64B5F6), width: 2),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
-        labelStyle: const TextStyle(color: Colors.white70),
+        fillColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
       ),
-      dropdownColor: const Color(0xFF2A2F45),
-      style: const TextStyle(color: Colors.white),
+      dropdownColor: Theme.of(context).cardColor,
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
     );
   }
 
@@ -911,18 +934,18 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     return Column(
       children: [
         _buildInfoSection('Personal Information', [
-          _buildInfoTile(Icons.person_rounded, 'Full Name', name, const Color(0xFF64B5F6)),
-          _buildInfoTile(Icons.email_rounded, 'Email Address', email, const Color(0xFF4CAF50)),
-          _buildInfoTile(Icons.phone_rounded, 'Phone Number', phone, const Color(0xFF2196F3)),
-          _buildInfoTile(Icons.location_on_rounded, 'Address', address, const Color(0xFFFF9800)),
+          _buildInfoTile(Icons.person_rounded, 'Full Name', name, Theme.of(context).colorScheme.primary),
+          _buildInfoTile(Icons.email_rounded, 'Email Address', email, Theme.of(context).colorScheme.primary),
+          _buildInfoTile(Icons.phone_rounded, 'Phone Number', phone, Theme.of(context).colorScheme.primary),
+          _buildInfoTile(Icons.location_on_rounded, 'Address', address, Theme.of(context).colorScheme.secondary),
           _buildInfoTile(Icons.calendar_today_rounded, 'Date of Birth', 
-              dob != null ? "${dob!.day}/${dob!.month}/${dob!.year}" : '-', const Color(0xFF9C27B0)),
-          _buildInfoTile(Icons.wc_rounded, 'Gender', gender, const Color(0xFFE91E63)),
+              dob != null ? "${dob!.day}/${dob!.month}/${dob!.year}" : '-', Theme.of(context).colorScheme.secondary),
+          _buildInfoTile(Icons.wc_rounded, 'Gender', gender, Theme.of(context).colorScheme.error),
         ]),
         const SizedBox(height: 16),
         _buildInfoSection('Identity Information', [
-          _buildInfoTile(Icons.credit_card_rounded, 'Aadhaar Number', aadhaarNumber, const Color(0xFF607D8B)),
-          _buildInfoTile(Icons.emergency_rounded, 'Emergency Contact', emergencyContact, const Color(0xFFE91E63)),
+          _buildInfoTile(Icons.credit_card_rounded, 'Aadhaar Number', aadhaarNumber, Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
+          _buildInfoTile(Icons.emergency_rounded, 'Emergency Contact', emergencyContact, Theme.of(context).colorScheme.error),
         ]),
         const SizedBox(height: 24),
         Container(
@@ -953,12 +976,12 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.edit_rounded, color: Colors.white),
+                Icon(Icons.edit_rounded, color: Theme.of(context).colorScheme.onSurface),
                 const SizedBox(width: 8),
-                const Text(
+                Text(
                   'Edit Profile',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -972,19 +995,23 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   }
 
   Widget _buildInfoSection(String title, List<Widget> children) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sectionGradient = isDark
+        ? [Color(0xFF2A2F45), Color(0xFF1E2337)]
+        : [Color(0xFFFFFFFF), Color(0xFFF5F5F5)];
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2A2F45), Color(0xFF1E2337)],
+        gradient: LinearGradient(
+          colors: sectionGradient,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -1000,16 +1027,16 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF64B5F6).withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.info_rounded, color: Color(0xFF64B5F6), size: 20),
+                  child: Icon(Icons.info_rounded, color: Theme.of(context).colorScheme.primary, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: isDark ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1050,7 +1077,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 Text(
                   title,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -1058,8 +1085,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1073,9 +1100,6 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   }
 
   Widget _buildSettingsTab() {
-    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
-    final currentLanguage = languageProvider.currentLanguageName;
-
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
@@ -1083,6 +1107,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSettingsSection(AppLocalizations.of(context)!.notifications, [
                 _buildSwitchTile(
@@ -1118,16 +1143,20 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 ),
               ]),
               const SizedBox(height: 16),
-              _buildSettingsSection('App Preferences', [
-                _buildLanguageDropdown(languageProvider, currentLanguage),
-                _buildDropdownTile(
-                  Icons.palette_rounded,
-                  AppLocalizations.of(context)!.theme,
-                  theme,
-                  ['Dark', 'Light', 'Auto'],
-                  (value) => setState(() => theme = value!),
-                ),
-              ]),
+              // Use Consumer to listen for theme changes
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, _) {
+                  final languageProvider = Provider.of<LanguageProvider>(context);
+                  final currentLanguage = languageProvider.availableLanguages.firstWhere(
+                    (lang) => lang['code'] == languageProvider.currentLocale.languageCode,
+                    orElse: () => {'name': 'English'},
+                  )['name'] ?? 'English';
+                  return _buildSettingsSection('App Preferences', [
+                    _buildLanguageDropdown(languageProvider, currentLanguage),
+                    _buildThemeDropdown(themeProvider),
+                  ]);
+                },
+              ),
               const SizedBox(height: 16),
               _buildSettingsSection('Data & Storage', [
                 _buildActionTile(
@@ -1143,6 +1172,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                   () => _showSuccessSnackBar('Cache cleared'),
                 ),
               ]),
+
             ],
           ),
         ),
@@ -1165,7 +1195,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                   'Biometric Login',
                   'Use fingerprint or face ID',
                   biometricEnabled,
-                  (value) => setState(() => biometricEnabled = value),
+                  _handleBiometricSwitch,
                 ),
                 _buildActionTile(
                   Icons.lock_rounded,
@@ -1220,19 +1250,23 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   }
 
   Widget _buildSettingsSection(String title, List<Widget> children) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sectionGradient = isDark
+        ? [Color(0xFF2A2F45), Color(0xFF1E2337)]
+        : [Color(0xFFFFFFFF), Color(0xFFF5F5F5)];
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2A2F45), Color(0xFF1E2337)],
+        gradient: LinearGradient(
+          colors: sectionGradient,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -1248,16 +1282,16 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF64B5F6).withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.settings_rounded, color: Color(0xFF64B5F6), size: 20),
+                  child: Icon(Icons.settings_rounded, color: Theme.of(context).colorScheme.primary, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: isDark ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1276,19 +1310,19 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.02),
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.02),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF64B5F6).withOpacity(0.1),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: const Color(0xFF64B5F6), size: 20),
+            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -1297,8 +1331,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1306,7 +1340,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                     fontSize: 14,
                   ),
                 ),
@@ -1316,8 +1350,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: const Color(0xFF4CAF50),
-            activeTrackColor: const Color(0xFF4CAF50).withOpacity(0.3),
+            activeColor: Theme.of(context).colorScheme.primary,
+            activeTrackColor: Theme.of(context).colorScheme.primary.withOpacity(0.3),
           ),
         ],
       ),
@@ -1329,9 +1363,9 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.02),
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.02),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
       ),
       child: InkWell(
         onTap: () => _showLanguageDialog(context, languageProvider),
@@ -1340,10 +1374,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF64B5F6).withOpacity(0.1),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.language_rounded, color: Color(0xFF64B5F6), size: 20),
+              child: Icon(Icons.language_rounded, color: Theme.of(context).colorScheme.primary, size: 20),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -1352,8 +1386,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 children: [
                   Text(
                     AppLocalizations.of(context)!.language,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1361,7 +1395,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                   Text(
                     currentLanguage,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                       fontSize: 14,
                     ),
                   ),
@@ -1375,15 +1409,93 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     );
   }
 
+  Widget _buildThemeDropdown(ThemeProvider themeProvider) {
+    String currentTheme = themeProvider.getCurrentThemeName();
+    
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.02),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(Icons.palette_rounded, color: Theme.of(context).colorScheme.primary, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.theme,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  currentTheme,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          DropdownButton<String>(
+            value: currentTheme,
+            onChanged: (String? newValue) async {
+              if (newValue != null) {
+                switch (newValue) {
+                  case 'Dark':
+                    await themeProvider.setTheme(ThemeMode.dark);
+                    break;
+                  case 'Light':
+                    await themeProvider.setTheme(ThemeMode.light);
+                    break;
+                  case 'System':
+                    await themeProvider.setTheme(ThemeMode.system);
+                    break;
+                }
+                _showSuccessSnackBar('Theme changed to $newValue');
+              }
+            },
+            dropdownColor: Theme.of(context).cardColor,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            icon: Icon(Icons.arrow_drop_down_rounded, color: Theme.of(context).colorScheme.primary),
+            underline: Container(), // Remove the default underline
+            items: ['Dark', 'Light', 'System'].map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showLanguageDialog(BuildContext context, LanguageProvider languageProvider) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2A2F45),
+        backgroundColor: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           AppLocalizations.of(context)!.selectLanguage,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1391,10 +1503,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             return ListTile(
               title: Text(
                 lang['name']!,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               ),
               trailing: languageProvider.currentLocale.languageCode == lang['code']
-                  ? const Icon(Icons.check_rounded, color: Color(0xFF64B5F6))
+                  ? Icon(Icons.check_rounded, color: Theme.of(context).colorScheme.primary)
                   : null,
               onTap: () {
                 languageProvider.changeLanguage(lang['code']!);
@@ -1403,17 +1515,17 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                   SnackBar(
                     content: Row(
                       children: [
-                        const Icon(Icons.language_rounded, color: Colors.white),
+                        Icon(Icons.language_rounded, color: Theme.of(context).colorScheme.onSurface),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             '${AppLocalizations.of(context)!.languageChangedTo} ${lang['name']}',
-                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
                           ),
                         ),
                       ],
                     ),
-                    backgroundColor: const Color(0xFF4CAF50),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     margin: const EdgeInsets.all(16),
@@ -1428,7 +1540,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               AppLocalizations.of(context)!.cancel,
-              style: const TextStyle(color: Color(0xFF64B5F6)),
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
           ),
         ],
@@ -1441,19 +1553,19 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.02),
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.02),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF64B5F6).withOpacity(0.1),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: const Color(0xFF64B5F6), size: 20),
+            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -1462,8 +1574,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1471,7 +1583,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 Text(
                   value,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                     fontSize: 14,
                   ),
                 ),
@@ -1481,8 +1593,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           DropdownButton<String>(
             value: value,
             onChanged: onChanged,
-            dropdownColor: const Color(0xFF2A2F45),
-            style: const TextStyle(color: Colors.white),
+            dropdownColor: Theme.of(context).cardColor,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             icon: const Icon(Icons.arrow_drop_down_rounded, color: Color(0xFF64B5F6)),
             items: options.map((option) => DropdownMenuItem(
               value: option,
@@ -1506,13 +1618,13 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isDestructive 
-                  ? const Color(0xFFE91E63).withOpacity(0.05)
-                  : Colors.white.withOpacity(0.02),
+                  ? Theme.of(context).colorScheme.error.withOpacity(0.05)
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.02),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isDestructive 
-                    ? const Color(0xFFE91E63).withOpacity(0.2)
-                    : Colors.white.withOpacity(0.05),
+                    ? Theme.of(context).colorScheme.error.withOpacity(0.2)
+                    : Theme.of(context).dividerColor.withOpacity(0.05),
               ),
             ),
             child: Row(
@@ -1521,13 +1633,13 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: isDestructive 
-                        ? const Color(0xFFE91E63).withOpacity(0.1)
-                        : const Color(0xFF64B5F6).withOpacity(0.1),
+                        ? Theme.of(context).colorScheme.error.withOpacity(0.1)
+                        : Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     icon, 
-                    color: isDestructive ? const Color(0xFFE91E63) : const Color(0xFF64B5F6), 
+                    color: isDestructive ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.primary, 
                     size: 20
                   ),
                 ),
@@ -1539,7 +1651,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                       Text(
                         title,
                         style: TextStyle(
-                          color: isDestructive ? const Color(0xFFE91E63) : Colors.white,
+                          color: isDestructive ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurface,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1547,7 +1659,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                       Text(
                         subtitle,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                           fontSize: 14,
                         ),
                       ),
@@ -1556,7 +1668,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 ),
                 Icon(
                   Icons.arrow_forward_ios_rounded,
-                  color: Colors.white.withOpacity(0.5),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                   size: 16,
                 ),
               ],
@@ -1571,35 +1683,35 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2A2F45),
+        backgroundColor: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFE91E63).withOpacity(0.2),
+                color: Theme.of(context).colorScheme.error.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.delete_forever_rounded, color: Color(0xFFE91E63), size: 24),
+              child: Icon(Icons.delete_forever_rounded, color: Theme.of(context).colorScheme.error, size: 24),
             ),
             const SizedBox(width: 12),
-            const Text(
+            Text(
               'Delete Account',
-              style: TextStyle(color: Color(0xFFE91E63), fontWeight: FontWeight.bold),
+              style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        content: const Text(
+        content: Text(
           'This action cannot be undone. All your data will be permanently deleted.',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: Color(0xFF64B5F6)),
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
           ),
           ElevatedButton(
@@ -1608,13 +1720,43 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               _showSuccessSnackBar(AppLocalizations.of(context)!.accountDeletionFeature);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE91E63),
+              backgroundColor: Theme.of(context).colorScheme.error,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Delete'),
+            child: Text('Delete'),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _handleBiometricSwitch(bool value) async {
+    if (value) {
+      bool canCheck = await auth.canCheckBiometrics;
+      bool isAvailable = await auth.isDeviceSupported();
+      if (canCheck && isAvailable) {
+        try {
+          bool didAuthenticate = await auth.authenticate(
+            localizedReason: 'Enable biometric login',
+            options: const AuthenticationOptions(biometricOnly: true),
+          );
+          if (didAuthenticate) {
+            setState(() => biometricEnabled = true);
+            await _saveBiometricPreference(true);
+            _showSuccessSnackBar('Biometric login enabled');
+          } else {
+            _showSuccessSnackBar('Biometric authentication failed');
+          }
+        } catch (e) {
+          _showSuccessSnackBar('Biometric error: ' + e.toString());
+        }
+      } else {
+        _showSuccessSnackBar('Biometric not available on this device');
+      }
+    } else {
+      setState(() => biometricEnabled = false);
+      await _saveBiometricPreference(false);
+      _showSuccessSnackBar('Biometric login disabled');
+    }
   }
 }

@@ -51,30 +51,30 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
     'services': '🛡️ We offer services like: 1) Complaint filing 2) FIR registration 3) Police verification 4) Lost & found 5) Emergency response 6) Traffic management 7) Cyber crime reporting',
   };
 
-  // Quick action buttons data
-  final List<Map<String, dynamic>> quickActions = [
+  // Quick action buttons data - will be initialized in build method
+  List<Map<String, dynamic>> get quickActions => [
     {
       'icon': Icons.emergency_rounded,
       'label': 'Emergency',
-      'color': Color(0xFFE91E63),
+      'color': Theme.of(context).colorScheme.error,
       'action': 'emergency',
     },
     {
       'icon': Icons.report_rounded,
       'label': 'File Complaint',
-      'color': Color(0xFFFF9800),
+      'color': Theme.of(context).colorScheme.secondary,
       'action': 'file_complaint',
     },
     {
       'icon': Icons.track_changes_rounded,
       'label': 'Track Status',
-      'color': Color(0xFF4CAF50),
+      'color': Theme.of(context).colorScheme.primary,
       'action': 'track_complaint',
     },
     {
       'icon': Icons.info_rounded,
       'label': 'Info',
-      'color': Color(0xFF3F51B5),
+      'color': Theme.of(context).colorScheme.primary,
       'action': 'info',
     },
   ];
@@ -228,7 +228,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Color(0xFFE91E63),
+        backgroundColor: Theme.of(context).colorScheme.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: EdgeInsets.all(16),
@@ -238,25 +238,25 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
 
   Widget _buildMessageBubble(Map<String, dynamic> message, {bool isAnimated = false}) {
     final isBot = message['role'] == 'bot';
-    final bubbleColor = isBot ? Color(0xFF2A2F45) : Color(0xFF3F51B5);
-    final textColor = isBot ? Colors.white : Colors.white;
+    final bubbleColor = isBot ? Theme.of(context).cardColor : Theme.of(context).colorScheme.primary;
+    final textColor = isBot ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface;
     final align = isBot ? CrossAxisAlignment.start : CrossAxisAlignment.end;
     final avatar = isBot
         ? Container(
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF64B5F6), Color(0xFF3F51B5)],
+                colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.smart_toy_rounded, color: Colors.white, size: 20),
+            child: Icon(Icons.smart_toy_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20),
           )
         : CircleAvatar(
-            backgroundColor: Color(0xFFE91E63),
-            child: Icon(Icons.person_rounded, color: Colors.white, size: 20),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            child: Icon(Icons.person_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20),
           );
 
     return FadeTransition(
@@ -280,7 +280,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                   bottomRight: Radius.circular(isBot ? 18 : 0),
                 ),
                 border: Border.all(
-                  color: isBot ? Color(0xFF64B5F6).withOpacity(0.3) : Colors.transparent,
+                  color: isBot ? Theme.of(context).colorScheme.primary.withOpacity(0.3) : Theme.of(context).dividerColor,
                   width: 1,
                 ),
                 boxShadow: [
@@ -316,7 +316,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
           Text(
             'Quick Actions',
             style: TextStyle(
-              color: Colors.white70,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -343,12 +343,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
         child: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
             backgroundColor: color,
-            foregroundColor: Colors.white,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             elevation: 4,
           ),
-          icon: Icon(icon, size: 18),
+          icon: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 18),
           label: Text(
             label, 
             style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
@@ -365,14 +365,14 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFFE91E63), Color(0xFFF06292)],
+          colors: [Theme.of(context).colorScheme.error, Theme.of(context).colorScheme.error.withOpacity(0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Color(0xFFE91E63).withOpacity(0.3),
+            color: Theme.of(context).colorScheme.error.withOpacity(0.3),
             blurRadius: 10,
             offset: Offset(0, 5),
           ),
@@ -382,12 +382,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
         children: [
           Row(
             children: [
-              Icon(Icons.emergency_rounded, color: Colors.white, size: 24),
+              Icon(Icons.emergency_rounded, color: Theme.of(context).colorScheme.onSurface, size: 24),
               SizedBox(width: 12),
               Text(
                 'Emergency Actions',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -400,11 +400,11 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: _callEmergency,
-                  icon: Icon(Icons.call_rounded, size: 16),
-                  label: Text('Call Police'),
+                  icon: Icon(Icons.call_rounded, color: Theme.of(context).colorScheme.error, size: 16),
+                  label: Text('Call Police', style: TextStyle(color: Theme.of(context).colorScheme.error)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Color(0xFFE91E63),
+                    backgroundColor: Theme.of(context).colorScheme.onSurface,
+                    foregroundColor: Theme.of(context).colorScheme.error,
                     padding: EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
@@ -414,11 +414,11 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: _shareLocation,
-                  icon: Icon(Icons.location_on_rounded, size: 16),
-                  label: Text('Share Location'),
+                  icon: Icon(Icons.location_on_rounded, color: Theme.of(context).colorScheme.error, size: 16),
+                  label: Text('Share Location', style: TextStyle(color: Theme.of(context).colorScheme.error)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Color(0xFFE91E63),
+                    backgroundColor: Theme.of(context).colorScheme.onSurface,
+                    foregroundColor: Theme.of(context).colorScheme.error,
                     padding: EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
@@ -433,11 +433,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0A0E21), Color(0xFF1A1F35)],
+            colors: isDark ? [Color(0xFF0A0E21), Color(0xFF1A1F35)] : [Color(0xFFF5F5F5), Color(0xFFE0E0E0)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -450,7 +451,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF1A1F35), Color(0xFF2A2F45)],
+                    colors: isDark ? [Color(0xFF1A1F35), Color(0xFF2A2F45)] : [Color(0xFF2A2F45), Color(0xFF3F51B5)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -468,20 +469,20 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                       padding: EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color(0xFF64B5F6), Color(0xFF3F51B5)],
+                          colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Color(0xFF64B5F6).withOpacity(0.3),
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                             blurRadius: 8,
                             offset: Offset(0, 2),
                           ),
                         ],
                       ),
-                      child: Icon(Icons.smart_toy_rounded, color: Colors.white, size: 28),
+                      child: Icon(Icons.smart_toy_rounded, color: Theme.of(context).colorScheme.onSurface, size: 28),
                     ),
                     SizedBox(width: 16),
                     Expanded(
@@ -491,7 +492,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                           Text(
                             'Police Chatbot',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
@@ -499,7 +500,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                           Text(
                             '24/7 AI Assistant',
                             style: TextStyle(
-                              color: Color(0xFF64B5F6),
+                              color: Theme.of(context).colorScheme.primary,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -509,9 +510,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                     ),
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(Icons.close_rounded, color: Colors.white, size: 28),
+                      icon: Icon(Icons.close_rounded, color: Theme.of(context).colorScheme.onSurface, size: 28),
                       style: IconButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.1),
+                        backgroundColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                         padding: EdgeInsets.all(12),
                       ),
                     ),
@@ -539,7 +540,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                         margin: EdgeInsets.symmetric(vertical: 6),
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Color(0xFF2A2F45),
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(18),
                         ),
                         child: Row(
@@ -548,18 +549,18 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                               padding: EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Color(0xFF64B5F6), Color(0xFF3F51B5)],
+                                  colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(Icons.smart_toy_rounded, color: Colors.white, size: 20),
+                              child: Icon(Icons.smart_toy_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20),
                             ),
                             SizedBox(width: 12),
                             Text(
                               'Typing...',
-                              style: TextStyle(color: Colors.white70, fontSize: 16),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), fontSize: 16),
                             ),
                           ],
                         ),
@@ -576,7 +577,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Color(0xFF2A2F45),
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
@@ -594,16 +595,16 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Color(0xFF1A1F35),
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(25),
-                          border: Border.all(color: Color(0xFF64B5F6).withOpacity(0.3)),
+                          border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
                         ),
                         child: TextField(
                           controller: _controller,
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
                           decoration: InputDecoration(
                             hintText: 'Type your message...',
-                            hintStyle: TextStyle(color: Colors.white54),
+                            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                             suffixIcon: IconButton(
@@ -611,7 +612,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                                 // Voice recognition would go here
                                 _showSnackBar('Voice recognition feature coming soon!');
                               },
-                              icon: Icon(Icons.mic_rounded, color: Color(0xFF64B5F6)),
+                              icon: Icon(Icons.mic_rounded, color: Theme.of(context).colorScheme.primary),
                             ),
                           ),
                           onSubmitted: (value) {
@@ -627,14 +628,14 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
+                          colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(25),
                         boxShadow: [
                           BoxShadow(
-                            color: Color(0xFF3F51B5).withOpacity(0.3),
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                             blurRadius: 8,
                             offset: Offset(0, 2),
                           ),
@@ -647,7 +648,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                             _controller.clear();
                           }
                         },
-                        icon: Icon(Icons.send_rounded, color: Colors.white, size: 24),
+                        icon: Icon(Icons.send_rounded, color: Theme.of(context).colorScheme.onSurface, size: 24),
                         padding: EdgeInsets.all(15),
                       ),
                     ),
@@ -744,14 +745,14 @@ class _ChatbotFABState extends State<ChatbotFAB> with SingleTickerProviderStateM
                 height: 60,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF64B5F6), Color(0xFF3F51B5)],
+                    colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFF64B5F6).withOpacity(0.4),
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
                       blurRadius: 15,
                       spreadRadius: 2,
                       offset: Offset(0, 4),
@@ -764,7 +765,7 @@ class _ChatbotFABState extends State<ChatbotFAB> with SingleTickerProviderStateM
                     Center(
                       child: Icon(
                         Icons.chat_bubble_rounded,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         size: 28,
                       ),
                     ),
@@ -776,13 +777,13 @@ class _ChatbotFABState extends State<ChatbotFAB> with SingleTickerProviderStateM
                         width: 12,
                         height: 12,
                         decoration: BoxDecoration(
-                          color: Color(0xFF4CAF50),
+                          color: Theme.of(context).colorScheme.primary,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
+                          border: Border.all(color: Theme.of(context).colorScheme.onSurface, width: 2),
                         ),
                         child: Icon(
                           Icons.smart_toy_rounded,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                           size: 6,
                         ),
                       ),

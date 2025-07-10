@@ -1,6 +1,5 @@
 import 'package:demo_app/profile_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'chatbot_screen.dart';
 import 'login_page.dart';
@@ -8,6 +7,7 @@ import 'registration_page.dart';
 import 'sos_button.dart';
 import 'l10n/language_provider.dart';
 import 'l10n/app_localizations.dart';
+import 'theme_provider.dart';
 
 // Form imports
 import 'forms/complaint_registration_form.dart';
@@ -44,8 +44,11 @@ import 'forms/cyber_done_form.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => LanguageProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => LanguageProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+      ],
       child: MyApp(),
     ),
   );
@@ -57,156 +60,264 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context);
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Ahilyanagar Police',
-      locale: languageProvider.currentLocale,
-      supportedLocales: LanguageProvider.supportedLocales,
-      localizationsDelegates: LanguageProvider.localizationsDelegates,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.indigo,
-        scaffoldBackgroundColor: const Color(0xFF0A0E21),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          iconTheme: IconThemeData(color: Colors.white),
-          titleTextStyle: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700,
-            fontSize: 24,
-            color: Colors.white,
-            letterSpacing: 0.5,
-          ),
-        ),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFF1A1F35),
-          selectedItemColor: Color(0xFF64B5F6),
-          unselectedItemColor: Colors.white60,
-          type: BottomNavigationBarType.fixed,
-          elevation: 20,
-        ),
-        cardColor: const Color(0xFF1E2337),
-        floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Color(0xFFE91E63),
-          foregroundColor: Colors.white,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF3F51B5),
-            foregroundColor: Colors.white,
-            elevation: 8,
-            shadowColor: const Color(0xFF3F51B5).withAlpha((0.3 * 255).toInt()),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+    // Use Consumer to listen for theme changes and rebuild MaterialApp
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        print('[MaterialApp] Rebuilding with theme: ${themeProvider.themeMode}');
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Ahilyanagar Police',
+          locale: languageProvider.currentLocale,
+          supportedLocales: LanguageProvider.supportedLocales,
+          localizationsDelegates: LanguageProvider.localizationsDelegates,
+          theme: ThemeData(
+            brightness: Brightness.light,
+            scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              iconTheme: IconThemeData(color: Colors.black),
+              titleTextStyle: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w700,
+                fontSize: 24,
+                color: Colors.black,
+                letterSpacing: 0.5,
+              ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: const Color(0xFF2A2F45),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(
-              color: const Color(0xFF3F51B5).withAlpha((0.3 * 255).toInt()),
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              backgroundColor: Colors.white,
+              selectedItemColor: Color(0xFF3F51B5),
+              unselectedItemColor: Colors.black54,
+              type: BottomNavigationBarType.fixed,
+              elevation: 20,
+            ),
+            cardColor: Colors.white,
+            floatingActionButtonTheme: const FloatingActionButtonThemeData(
+              backgroundColor: Color(0xFF3F51B5),
+              foregroundColor: Colors.white,
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3F51B5),
+                foregroundColor: Colors.white,
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: const Color(0xFF3F51B5).withAlpha((0.3 * 255).toInt()),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: Color(0xFF3F51B5), width: 2),
+              ),
+              labelStyle: const TextStyle(color: Colors.black87),
+              hintStyle: const TextStyle(color: Colors.black54),
+            ),
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF3F51B5),
+              secondary: Color(0xFF64B5F6),
+              surface: Colors.white,
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: Colors.black,
+              error: Color(0xFFE57373),
+            ),
+            textTheme: const TextTheme(
+              headlineLarge: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w700,
+                fontSize: 32,
+                color: Colors.black,
+                letterSpacing: 0.5,
+              ),
+              headlineMedium: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+                fontSize: 24,
+                color: Colors.black,
+                letterSpacing: 0.3,
+              ),
+              titleLarge: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
+                color: Colors.black,
+                letterSpacing: 0.2,
+              ),
+              bodyLarge: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w400,
+                fontSize: 16,
+                color: Colors.black,
+              ),
+              bodyMedium: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                color: Colors.black87,
+              ),
             ),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFF64B5F6), width: 2),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: const Color(0xFF0A0E21),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              iconTheme: IconThemeData(color: Colors.white),
+              titleTextStyle: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w700,
+                fontSize: 24,
+                color: Colors.white,
+                letterSpacing: 0.5,
+              ),
+            ),
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              backgroundColor: Color(0xFF1A1F35),
+              selectedItemColor: Color(0xFF64B5F6),
+              unselectedItemColor: Colors.white60,
+              type: BottomNavigationBarType.fixed,
+              elevation: 20,
+            ),
+            cardColor: const Color(0xFF1E2337),
+            floatingActionButtonTheme: const FloatingActionButtonThemeData(
+              backgroundColor: Color(0xFFE91E63),
+              foregroundColor: Colors.white,
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3F51B5),
+                foregroundColor: Colors.white,
+                elevation: 8,
+                shadowColor: const Color(0xFF3F51B5).withAlpha((0.3 * 255).toInt()),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              fillColor: const Color(0xFF2A2F45),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: const Color(0xFF3F51B5).withAlpha((0.3 * 255).toInt()),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: Color(0xFF64B5F6), width: 2),
+              ),
+              labelStyle: const TextStyle(color: Colors.white70),
+              hintStyle: const TextStyle(color: Colors.white54),
+            ),
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFF3F51B5),
+              secondary: Color(0xFF64B5F6),
+              surface: Color(0xFF0A0E21),
+              onPrimary: Colors.white,
+              onSecondary: Colors.white,
+              onSurface: Colors.white,
+              error: Color(0xFFE57373),
+            ),
+            textTheme: const TextTheme(
+              headlineLarge: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w700,
+                fontSize: 32,
+                color: Colors.white,
+                letterSpacing: 0.5,
+              ),
+              headlineMedium: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+                fontSize: 24,
+                color: Colors.white,
+                letterSpacing: 0.3,
+              ),
+              titleLarge: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
+                color: Colors.white,
+                letterSpacing: 0.2,
+              ),
+              bodyLarge: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w400,
+                fontSize: 16,
+                color: Colors.white,
+              ),
+              bodyMedium: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                color: Colors.white70,
+              ),
+            ),
           ),
-          labelStyle: const TextStyle(color: Colors.white70),
-          hintStyle: const TextStyle(color: Colors.white54),
-        ),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF3F51B5),
-          secondary: Color(0xFF64B5F6),
-          surface: Color(0xFF0A0E21),
-          onPrimary: Colors.white,
-          onSecondary: Colors.white,
-          onSurface: Colors.white,
-          error: Color(0xFFE57373),
-        ),
-        textTheme: const TextTheme(
-          headlineLarge: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700,
-            fontSize: 32,
-            color: Colors.white,
-            letterSpacing: 0.5,
-          ),
-          headlineMedium: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w600,
-            fontSize: 24,
-            color: Colors.white,
-            letterSpacing: 0.3,
-          ),
-          titleLarge: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-            color: Colors.white,
-            letterSpacing: 0.2,
-          ),
-          bodyLarge: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w400,
-            fontSize: 16,
-            color: Colors.white,
-          ),
-          bodyMedium: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w400,
-            fontSize: 14,
-            color: Colors.white70,
-          ),
-        ),
-      ),
-      home: MainNavigation(),
-      routes: {
-        '/login': (context) => LoginPage(),
-        '/register': (context) => RegistrationPage(),
-        '/home': (context) => MainNavigation(),
-        // Form routes
-        '/complaint_registration': (context) => ComplaintRegistrationForm(),
-        '/mike_sanction_registration': (context) => MikeSanctionRegistrationForm(),
-        '/fir_download': (context) => FIRDownloadForm(),
-        '/accident_gd': (context) => AccidentGDForm(),
-        '/lost_property': (context) => LostPropertyForm(),
-        '/payment_history': (context) => PaymentHistoryForm(),
-        '/event_performance': (context) => EventPerformanceForm(),
-        '/grievance_redressal': (context) => GrievanceRedressalForm(),
-        '/arrest_search': (context) => ArrestSearchForm(),
-        '/feedback': (context) => FeedbackForm(),
-        '/blood_donor': (context) => BloodDonorForm(),
-        '/blood_request': (context) => BloodRequestForm(),
-        '/track_my_trip': (context) => TrackMyTripForm(),
-        '/locked_house_info': (context) => LockedHouseInfoForm(),
-        '/senior_citizen_info': (context) => SeniorCitizenInfoForm(),
-        '/single_women_living_alone': (context) => SingleWomenLivingAloneForm(),
-        '/report_abduction': (context) => ReportAbductionForm(),
-        '/report_cyber_fraud': (context) => ReportCyberFraudForm(),
-        '/share_information': (context) => ShareInformationForm(),
-        '/appointment_with_sho': (context) => AppointmentWithSHOForm(),
-        '/search_police_station': (context) => SearchPoliceStationForm(),
-        '/cyber_security_info': (context) => CyberSecurityInfoForm(),
-        '/tourist_guide': (context) => TouristGuideForm(),
-        '/user_manual': (context) => UserManualForm(),
-        '/awareness_classes': (context) => AwarenessClassesForm(),
-        '/rate_police_station': (context) => RatePoliceStationForm(),
-        '/rate_application': (context) => RateApplicationForm(),
-        '/social_media_of_police': (context) => SocialMediaOfPoliceForm(),
-        '/maharashtra_government': (context) => MaharashtraGovernmentForm(),
-        '/ahilyanagar_police': (context) => AhilyanagarPoliceForm(),
-        '/cyber_done': (context) => CyberDoneForm(),
-        '/chatbot': (context) => ChatbotScreen(),
+          themeMode: themeProvider.themeMode,
+          home: MainNavigation(),
+          routes: {
+            '/login': (context) => LoginPage(),
+            '/register': (context) => RegistrationPage(),
+            '/home': (context) => MainNavigation(),
+            // Form routes
+            '/complaint_registration': (context) => ComplaintRegistrationForm(),
+            '/mike_sanction_registration': (context) => MikeSanctionRegistrationForm(),
+            '/fir_download': (context) => FIRDownloadForm(),
+            '/accident_gd': (context) => AccidentGDForm(),
+            '/lost_property': (context) => LostPropertyForm(),
+            '/payment_history': (context) => PaymentHistoryForm(),
+            '/event_performance': (context) => EventPerformanceForm(),
+            '/grievance_redressal': (context) => GrievanceRedressalForm(),
+            '/arrest_search': (context) => ArrestSearchForm(),
+            '/feedback': (context) => FeedbackForm(),
+            '/blood_donor': (context) => BloodDonorForm(),
+            '/blood_request': (context) => BloodRequestForm(),
+            '/track_my_trip': (context) => TrackMyTripForm(),
+            '/locked_house_info': (context) => LockedHouseInfoForm(),
+            '/senior_citizen_info': (context) => SeniorCitizenInfoForm(),
+            '/single_women_living_alone': (context) => SingleWomenLivingAloneForm(),
+            '/report_abduction': (context) => ReportAbductionForm(),
+            '/report_cyber_fraud': (context) => ReportCyberFraudForm(),
+            '/share_information': (context) => ShareInformationForm(),
+            '/appointment_with_sho': (context) => AppointmentWithSHOForm(),
+            '/search_police_station': (context) => SearchPoliceStationForm(),
+            '/cyber_security_info': (context) => CyberSecurityInfoForm(),
+            '/tourist_guide': (context) => TouristGuideForm(),
+            '/user_manual': (context) => UserManualForm(),
+            '/awareness_classes': (context) => AwarenessClassesForm(),
+            '/rate_police_station': (context) => RatePoliceStationForm(),
+            '/rate_application': (context) => RateApplicationForm(),
+            '/social_media_of_police': (context) => SocialMediaOfPoliceForm(),
+            '/maharashtra_government': (context) => MaharashtraGovernmentForm(),
+            '/ahilyanagar_police': (context) => AhilyanagarPoliceForm(),
+            '/cyber_done': (context) => CyberDoneForm(),
+            '/chatbot': (context) => ChatbotScreen(),
+          },
+        );
       },
     );
   }
@@ -266,15 +377,15 @@ class _MainNavigationState extends State<MainNavigation>
         child: _pages[_selectedIndex],
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF1A1F35), Color(0xFF0F1424)],
+            colors: [Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9), Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black,
+              color: Theme.of(context).shadowColor,
               blurRadius: 20,
               offset: Offset(0, -5),
             ),
@@ -323,7 +434,7 @@ class _MainNavigationState extends State<MainNavigation>
                         label: AppLocalizations.of(context)!.profile,
                       ),
                     ],
-                    selectedItemColor: Color(0xFF64B5F6),
+                    selectedItemColor: Theme.of(context).colorScheme.primary,
                     unselectedItemColor: Colors.white60,
                     showSelectedLabels: true,
                     showUnselectedLabels: true,
@@ -344,7 +455,7 @@ class _MainNavigationState extends State<MainNavigation>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFE91E63).withAlpha((0.4 * 255).toInt()),
+                            color: Theme.of(context).floatingActionButtonTheme.backgroundColor!.withAlpha((0.4 * 255).toInt()),
                             blurRadius: 20,
                             spreadRadius: 2,
                           ),
@@ -373,9 +484,9 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0A0E21), Color(0xFF1A1F35)],
+            colors: [Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9), Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -402,19 +513,19 @@ class HomePage extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFF1A1F35),
-            Color(0xFF2A2F45),
-            Color(0xFF1A1F35),
+            Theme.of(context).appBarTheme.backgroundColor!,
+            Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+            Theme.of(context).appBarTheme.backgroundColor!,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black,
+            color: Theme.of(context).shadowColor,
             blurRadius: 15,
             offset: Offset(0, 5),
           ),
@@ -424,16 +535,16 @@ class HomePage extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF64B5F6), Color(0xFF3F51B5)],
+                colors: [Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.primary],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.all(Radius.circular(12)),
               boxShadow: [
                 BoxShadow(
-                  color: Color(0xFF64B5F6),
+                  color: Theme.of(context).colorScheme.secondary,
                   blurRadius: 8,
                   offset: Offset(0, 2),
                 ),
@@ -449,8 +560,8 @@ class HomePage extends StatelessWidget {
                 const SizedBox(height: 1),
                 Text(
                   AppLocalizations.of(context)!.ahilyanagarPolice,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.headlineLarge?.color,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -474,8 +585,8 @@ class HomePage extends StatelessWidget {
                 child: Container(
                   width: 10,
                   height: 10,
-                  decoration: const BoxDecoration(
-                    color: Colors.redAccent,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.error,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -483,10 +594,18 @@ class HomePage extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 8),
-          const CircleAvatar(
-            radius: 20,
-            backgroundColor: Color(0xFF64B5F6),
-            child: Icon(Icons.person, color: Colors.white, size: 24),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
+            },
+            child: CircleAvatar(
+              radius: 20,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Icon(Icons.person, color: Theme.of(context).colorScheme.onPrimary, size: 24),
+            ),
           ),
         ],
       ),
@@ -497,16 +616,16 @@ class HomePage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFE91E63), Color(0xFFC2185B)],
+            colors: [Theme.of(context).colorScheme.error.withOpacity(0.9), Theme.of(context).colorScheme.error.withOpacity(0.7)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.all(Radius.circular(20)),
           boxShadow: [
             BoxShadow(
-              color: Color(0xFFE91E63),
+              color: Theme.of(context).colorScheme.error,
               blurRadius: 15,
               offset: Offset(0, 5),
             ),
@@ -518,8 +637,8 @@ class HomePage extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
                 child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 32),
@@ -531,9 +650,9 @@ class HomePage extends StatelessWidget {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.missingPersonAlertTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: Theme.of(context).textTheme.headlineMedium?.color,
                         fontSize: 18,
                         letterSpacing: 0.5,
                       ),
@@ -541,8 +660,8 @@ class HomePage extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       AppLocalizations.of(context)!.missingPersonAlertDescription,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
                         fontSize: 14,
                         height: 1.4,
                       ),
@@ -561,16 +680,16 @@ class HomePage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF1E2337), Color(0xFF2A2F45)],
+            colors: [Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9), Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.all(Radius.circular(20)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black,
+              color: Theme.of(context).shadowColor,
               blurRadius: 15,
               offset: Offset(0, 5),
             ),
@@ -583,7 +702,7 @@ class HomePage extends StatelessWidget {
               Text(
                 AppLocalizations.of(context)!.quickServices,
                 style: TextStyle(
-                  color: Color(0xFF64B5F6),
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w600,
                   fontSize: 20,
                 ),
@@ -606,12 +725,12 @@ class HomePage extends StatelessWidget {
                   _ServiceIcon(
                     icon: Icons.bloodtype_rounded,
                     label: AppLocalizations.of(context)!.bloodRequest,
-                    color: Color(0xFFE91E63),
+                    color: Theme.of(context).colorScheme.error,
                   ),
                   _ServiceIcon(
                     icon: Icons.event_rounded,
                     label: AppLocalizations.of(context)!.appointments,
-                    color: Color(0xFF9C27B0),
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 ],
               ),
@@ -626,16 +745,16 @@ class HomePage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF3F51B5), Color(0xFF303F9F)],
+            colors: [Theme.of(context).colorScheme.primary.withOpacity(0.9), Theme.of(context).colorScheme.primary.withOpacity(0.7)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.all(Radius.circular(20)),
           boxShadow: [
             BoxShadow(
-              color: Color(0xFF3F51B5),
+              color: Theme.of(context).colorScheme.primary,
               blurRadius: 15,
               offset: Offset(0, 5),
             ),
@@ -648,13 +767,13 @@ class HomePage extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.emergency_rounded, color: Color(0xFFFFD700), size: 28),
+                  const Icon(Icons.emergency_rounded, color: Color(0xFFFF9800), size: 28),
                   const SizedBox(width: 12),
                   Text(
                     AppLocalizations.of(context)!.emergencyContacts,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: Theme.of(context).textTheme.headlineMedium?.color,
                       fontSize: 20,
                       letterSpacing: 0.5,
                     ),
@@ -670,21 +789,21 @@ class HomePage extends StatelessWidget {
                       icon: Icons.local_police_rounded,
                       label: AppLocalizations.of(context)!.police,
                       phone: '100',
-                      color: const Color(0xFF2196F3),
+                      color: Color(0xFF2196F3),
                     ),
                     const SizedBox(width: 16),
                     _ContactIcon(
                       icon: Icons.local_hospital_rounded,
                       label: AppLocalizations.of(context)!.ambulance,
                       phone: '108',
-                      color: const Color(0xFFE91E63),
+                      color: Theme.of(context).colorScheme.error,
                     ),
                     const SizedBox(width: 16),
                     _ContactIcon(
                       icon: Icons.local_fire_department_rounded,
                       label: AppLocalizations.of(context)!.fire,
                       phone: '101',
-                      color: const Color(0xFFFF9800),
+                      color: Color(0xFFFF9800),
                     ),
                   ],
                 ),
@@ -700,16 +819,16 @@ class HomePage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF1E2337), Color(0xFF2A2F45)],
+            colors: [Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9), Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.all(Radius.circular(20)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black,
+              color: Theme.of(context).shadowColor,
               blurRadius: 15,
               offset: Offset(0, 5),
             ),
@@ -722,13 +841,13 @@ class HomePage extends StatelessWidget {
               padding: const EdgeInsets.all(24.0),
               child: Row(
                 children: [
-                  const Icon(Icons.newspaper_rounded, color: Color(0xFF64B5F6), size: 28),
+                  Icon(Icons.newspaper_rounded, color: Theme.of(context).colorScheme.primary, size: 28),
                   const SizedBox(width: 12),
                   Text(
                     AppLocalizations.of(context)!.dailyUpdates,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF64B5F6),
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 20,
                       letterSpacing: 0.5,
                     ),
@@ -788,7 +907,7 @@ class _UpdateTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2F45),
+        color: Theme.of(context).inputDecorationTheme.fillColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withAlpha((0.2 * 255).toInt())),
       ),
@@ -809,8 +928,8 @@ class _UpdateTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
@@ -818,8 +937,8 @@ class _UpdateTile extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontSize: 14,
                   ),
                 ),
@@ -866,13 +985,13 @@ class _ServiceIcon extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(icon, color: Colors.white, size: 24),
+            child: Icon(icon, color: Theme.of(context).colorScheme.onPrimary, size: 24),
           ),
           const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyMedium?.color,
               fontSize: 11,
               fontWeight: FontWeight.w500,
             ),
@@ -920,22 +1039,22 @@ class _ContactIcon extends StatelessWidget {
               ),
             ],
           ),
-          child: Icon(icon, color: Colors.white, size: 24),
+          child: Icon(icon, color: Theme.of(context).colorScheme.onPrimary, size: 24),
         ),
         const SizedBox(height: 8),
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyMedium?.color,
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 4),
-        const Text(
-          '100',
+        Text(
+          phone,
           style: TextStyle(
-            color: Color(0xFFFFD700),
+            color: Color(0xFFFF9800),
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),
@@ -952,9 +1071,9 @@ class ServicesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0A0E21), Color(0xFF1A1F35)],
+            colors: [Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9), Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -965,15 +1084,15 @@ class ServicesPage extends StatelessWidget {
               // Enhanced Header
               Container(
                 padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF1A1F35), Color(0xFF2A2F45)],
+                    colors: [Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9), Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black,
+                      color: Theme.of(context).shadowColor,
                       blurRadius: 15,
                       offset: Offset(0, 5),
                     ),
@@ -983,16 +1102,16 @@ class ServicesPage extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color(0xFF64B5F6), Color(0xFF3F51B5)],
+                          colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.primary.withAlpha(204)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                         boxShadow: [
                           BoxShadow(
-                            color: Color(0xFF64B5F6),
+                            color: Theme.of(context).colorScheme.primary,
                             blurRadius: 8,
                             offset: Offset(0, 2),
                           ),
@@ -1005,20 +1124,20 @@ class ServicesPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                                                        Text(
-                                AppLocalizations.of(context)!.policeServices,
-                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                AppLocalizations.of(context)!.accessAllServices,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: const Color(0xFF64B5F6),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                          Text(
+                            AppLocalizations.of(context)!.policeServices,
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              color: Theme.of(context).textTheme.headlineMedium?.color,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            AppLocalizations.of(context)!.accessAllServices,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -1046,7 +1165,7 @@ class ServicesPageBody extends StatelessWidget {
     final sections = [
       SectionData(
         icon: Icons.account_balance_rounded,
-        color: const Color(0xFF3F51B5),
+        color: Theme.of(context).colorScheme.primary,
         title: AppLocalizations.of(context)!.thunaService,
         subtitle: AppLocalizations.of(context)!.officialPoliceServices,
         children: [
@@ -1064,7 +1183,7 @@ class ServicesPageBody extends StatelessWidget {
       ),
       SectionData(
         icon: Icons.bloodtype_rounded,
-        color: const Color(0xFFE91E63),
+        color: Theme.of(context).colorScheme.error,
         title: AppLocalizations.of(context)!.polBloodService,
         subtitle: AppLocalizations.of(context)!.bloodDonationRequests,
         children: [
@@ -1074,7 +1193,7 @@ class ServicesPageBody extends StatelessWidget {
       ),
       SectionData(
         icon: Icons.security_rounded,
-        color: const Color(0xFF4CAF50),
+        color: Color(0xFF4CAF50),
         title: AppLocalizations.of(context)!.citizenSafetyService,
         subtitle: AppLocalizations.of(context)!.personalSafetyFeatures,
         children: [
@@ -1086,7 +1205,7 @@ class ServicesPageBody extends StatelessWidget {
       ),
       SectionData(
         icon: Icons.report_problem_rounded,
-        color: const Color(0xFFFF9800),
+        color: Color(0xFFFF9800),
         title: AppLocalizations.of(context)!.reportOffence,
         subtitle: AppLocalizations.of(context)!.reportCrimesIncidents,
         children: [
@@ -1097,7 +1216,7 @@ class ServicesPageBody extends StatelessWidget {
       ),
       SectionData(
         icon: Icons.event_rounded,
-        color: const Color(0xFF9C27B0),
+        color: Theme.of(context).colorScheme.secondary,
         title: AppLocalizations.of(context)!.appointmentSearch,
         subtitle: AppLocalizations.of(context)!.scheduleFindServices,
         children: [
@@ -1107,7 +1226,7 @@ class ServicesPageBody extends StatelessWidget {
       ),
       SectionData(
         icon: Icons.tips_and_updates_rounded,
-        color: const Color(0xFF00BCD4),
+        color: Color(0xFF2196F3),
         title: AppLocalizations.of(context)!.internetTips,
         subtitle: AppLocalizations.of(context)!.cyberSafetyGuidance,
         children: [
@@ -1119,7 +1238,7 @@ class ServicesPageBody extends StatelessWidget {
       ),
       SectionData(
         icon: Icons.star_rounded,
-        color: const Color(0xFFFFD700),
+        color: Color(0xFFFF9800),
         title: AppLocalizations.of(context)!.rate,
         subtitle: AppLocalizations.of(context)!.rateOurServices,
         children: [
@@ -1129,7 +1248,7 @@ class ServicesPageBody extends StatelessWidget {
       ),
       SectionData(
         icon: Icons.link_rounded,
-        color: const Color(0xFF607D8B),
+        color: Theme.of(context).colorScheme.onSurface,
         title: AppLocalizations.of(context)!.webLinks,
         subtitle: AppLocalizations.of(context)!.externalResources,
         children: [
@@ -1141,7 +1260,7 @@ class ServicesPageBody extends StatelessWidget {
       ),
       SectionData(
         icon: Icons.smart_toy_rounded,
-        color: const Color(0xFF64B5F6),
+        color: Theme.of(context).colorScheme.primary,
         title: AppLocalizations.of(context)!.aiAssistant,
         subtitle: AppLocalizations.of(context)!.policeChatbot,
         children: [
@@ -1212,16 +1331,17 @@ class SectionCard extends StatelessWidget {
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8), // reduced vertical padding
         child: Column(
+          mainAxisSize: MainAxisSize.min, // let column size to its content
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(section.icon, color: Colors.white, size: 36),
+            Icon(section.icon, color: Theme.of(context).colorScheme.onPrimary, size: 36),
             const SizedBox(height: 12),
             Text(
               section.title,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onPrimary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1240,9 +1360,9 @@ class SectionDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF23284A),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
         title: Row(
           children: [
             Container(
@@ -1260,11 +1380,11 @@ class SectionDetailsPage extends StatelessWidget {
                 children: [
                   Text(
                     section.title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary),
                   ),
                   Text(
                     section.subtitle,
-                    style: const TextStyle(fontSize: 13, color: Colors.white70),
+                    style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.7)),
                   ),
                 ],
               ),
@@ -1272,7 +1392,7 @@ class SectionDetailsPage extends StatelessWidget {
           ],
         ),
       ),
-      backgroundColor: const Color(0xFF23284A),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 24),
         children: section.children,
@@ -1314,9 +1434,9 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
     _tabController ??= TabController(length: _tabs.length, vsync: this);
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0A0E21), Color(0xFF1A1F35)],
+            colors: [Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9), Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -1327,15 +1447,15 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
               // Enhanced Header
               Container(
                 padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF1A1F35), Color(0xFF2A2F45)],
+                    colors: [Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9), Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black,
+                      color: Theme.of(context).shadowColor,
                       blurRadius: 15,
                       offset: Offset(0, 5),
                     ),
@@ -1347,16 +1467,16 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
                       children: [
                         Container(
                           padding: const EdgeInsets.all(12),
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [Color(0xFF64B5F6), Color(0xFF3F51B5)],
+                              colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.primary.withAlpha(204)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.all(Radius.circular(16)),
                             boxShadow: [
                               BoxShadow(
-                                color: Color(0xFF64B5F6),
+                                color: Theme.of(context).colorScheme.primary,
                                 blurRadius: 8,
                                 offset: Offset(0, 2),
                               ),
@@ -1372,14 +1492,14 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
                               Text(
                                 AppLocalizations.of(context)!.contactEmergency,
                                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  color: Colors.white,
+                                  color: Theme.of(context).textTheme.headlineMedium?.color,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
                               Text(
                                 AppLocalizations.of(context)!.getInTouch,
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: const Color(0xFF64B5F6),
+                                  color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -1391,11 +1511,11 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
                     const SizedBox(height: 16),
                     // Search Bar
                     Container(
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                         boxShadow: [
                           BoxShadow(
-                            color: Color(0xFF3F51B5),
+                            color: Theme.of(context).colorScheme.primary,
                             blurRadius: 8,
                             offset: Offset(0, 4),
                           ),
@@ -1405,24 +1525,24 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
                           controller: _searchController,
                           decoration: InputDecoration(
                             hintText: AppLocalizations.of(context)!.searchContacts,
-                          prefixIcon: Icon(Icons.search_rounded, color: Color(0xFF64B5F6)),
+                          prefixIcon: Icon(Icons.search_rounded, color: Theme.of(context).colorScheme.primary),
                           filled: true,
-                          fillColor: Color(0xFF2A2F45),
+                          fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(16)),
                             borderSide: BorderSide.none,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(16)),
-                            borderSide: BorderSide(color: Color(0xFF3F51B5)),
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(16)),
-                            borderSide: BorderSide(color: Color(0xFF64B5F6), width: 2),
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                           ),
-                          hintStyle: TextStyle(color: Colors.white54),
+                          hintStyle: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7)),
                         ),
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
                         onChanged: (value) {
                           setState(() {});
                         },
@@ -1431,8 +1551,8 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
                     const SizedBox(height: 16),
                     // Enhanced Tab Bar
                     Container(
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF2A2F45),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).inputDecorationTheme.fillColor,
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
                       child: TabBar(
@@ -1440,17 +1560,17 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
                         tabs: _tabs.map((t) => Tab(
                           child: Text(
                             t,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
                             ),
                           ),
                         )).toList(),
-                        indicatorColor: const Color(0xFF64B5F6),
+                        indicatorColor: Theme.of(context).colorScheme.primary,
                         indicatorWeight: 3,
                         indicatorSize: TabBarIndicatorSize.tab,
-                        labelColor: Colors.white,
-                        unselectedLabelColor: Colors.white70,
+                        labelColor: Theme.of(context).colorScheme.onPrimary,
+                        unselectedLabelColor: Theme.of(context).colorScheme.onPrimary.withOpacity(0.7),
                         dividerColor: Colors.transparent,
                       ),
                     ),
@@ -1498,16 +1618,16 @@ class _ContactList extends StatelessWidget {
       itemCount: filtered.length,
       itemBuilder: (context, i) => Container(
         margin: const EdgeInsets.only(bottom: 12),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF1E2337), Color(0xFF2A2F45)],
+            colors: [Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9), Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.all(Radius.circular(16)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black,
+              color: Theme.of(context).shadowColor,
               blurRadius: 8,
               offset: Offset(0, 2),
             ),
@@ -1517,16 +1637,16 @@ class _ContactList extends StatelessWidget {
           contentPadding: const EdgeInsets.all(16),
           leading: Container(
             padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF64B5F6), Color(0xFF3F51B5)],
+                colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.primary.withAlpha(204)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.all(Radius.circular(16)),
               boxShadow: [
                 BoxShadow(
-                  color: Color(0xFF64B5F6),
+                  color: Theme.of(context).colorScheme.primary,
                   blurRadius: 8,
                   offset: Offset(0, 2),
                 ),
@@ -1536,23 +1656,23 @@ class _ContactList extends StatelessWidget {
           ),
           title: Text(
             filtered[i]['name']!,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color,
               fontWeight: FontWeight.w600,
               fontSize: 16,
             ),
           ),
           subtitle: Text(
             filtered[i]['phone']!,
-            style: const TextStyle(
-              color: Colors.white70,
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyMedium?.color,
               fontSize: 14,
             ),
           ),
           trailing: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF4CAF50), Color(0xFF66BB6A)],
+                colors: [Color(0xFF4CAF50), Color(0xFF4CAF50).withAlpha(204)],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
@@ -1598,16 +1718,16 @@ class _HelplineList extends StatelessWidget {
       itemCount: filtered.length,
       itemBuilder: (context, i) => Container(
         margin: const EdgeInsets.only(bottom: 12),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF1E2337), Color(0xFF2A2F45)],
+            colors: [Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9), Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.all(Radius.circular(16)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black,
+              color: Theme.of(context).shadowColor,
               blurRadius: 8,
               offset: Offset(0, 2),
             ),
@@ -1617,16 +1737,16 @@ class _HelplineList extends StatelessWidget {
           contentPadding: const EdgeInsets.all(16),
           leading: Container(
             padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFFE91E63), Color(0xFFC2185B)],
+                colors: [Theme.of(context).colorScheme.error, Theme.of(context).colorScheme.error.withAlpha(204)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.all(Radius.circular(16)),
               boxShadow: [
                 BoxShadow(
-                  color: Color(0xFFE91E63),
+                  color: Theme.of(context).colorScheme.error,
                   blurRadius: 8,
                   offset: Offset(0, 2),
                 ),
@@ -1636,23 +1756,23 @@ class _HelplineList extends StatelessWidget {
           ),
           title: Text(
             filtered[i]['name']!,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color,
               fontWeight: FontWeight.w600,
               fontSize: 16,
             ),
           ),
           subtitle: Text(
             filtered[i]['phone']!,
-            style: const TextStyle(
-              color: Colors.white70,
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyMedium?.color,
               fontSize: 14,
             ),
           ),
           trailing: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF4CAF50), Color(0xFF66BB6A)],
+                colors: [Color(0xFF4CAF50), Color(0xFF4CAF50).withAlpha(204)],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
@@ -1691,16 +1811,16 @@ class _EmergencySection extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(bottom: 24),
               padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFFE91E63), Color(0xFFC2185B)],
+                  colors: [Theme.of(context).colorScheme.error.withOpacity(0.9), Theme.of(context).colorScheme.error.withOpacity(0.7)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.all(Radius.circular(20)),
                 boxShadow: [
                   BoxShadow(
-                    color: Color(0xFFE91E63),
+                    color: Theme.of(context).colorScheme.error,
                     blurRadius: 15,
                     offset: Offset(0, 5),
                   ),
@@ -1711,7 +1831,7 @@ class _EmergencySection extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: const Icon(Icons.notification_important_rounded, color: Colors.white, size: 28),
@@ -1724,7 +1844,7 @@ class _EmergencySection extends StatelessWidget {
                         Text(
                           AppLocalizations.of(context)!.emergencyNotification,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
                             fontWeight: FontWeight.w700,
                             fontSize: 18,
                           ),
@@ -1733,7 +1853,7 @@ class _EmergencySection extends StatelessWidget {
                         Text(
                           AppLocalizations.of(context)!.sendEmergencyAlert,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).textTheme.bodyMedium?.color,
                             fontSize: 14,
                           ),
                         ),
@@ -1742,7 +1862,7 @@ class _EmergencySection extends StatelessWidget {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ElevatedButton(
@@ -1757,7 +1877,7 @@ class _EmergencySection extends StatelessWidget {
                       child: Text(
                         AppLocalizations.of(context)!.notify,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -1773,7 +1893,7 @@ class _EmergencySection extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFFFFD700),
+                color: Color(0xFFFF9800),
                 letterSpacing: 0.5,
               ),
             ),
@@ -1787,7 +1907,7 @@ class _EmergencySection extends StatelessWidget {
             _EmergencyContactCard(
               title: AppLocalizations.of(context)!.ambulanceService,
               phone: '108',
-              color: Color(0xFFE91E63),
+              color: Theme.of(context).colorScheme.error,
               icon: Icons.local_hospital_rounded,
             ),
             _EmergencyContactCard(
@@ -1820,16 +1940,16 @@ class _EmergencyContactCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF1E2337), Color(0xFF2A2F45)],
+          colors: [Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9), Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.all(Radius.circular(16)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black,
+            color: Theme.of(context).shadowColor,
             blurRadius: 8,
             offset: Offset(0, 2),
           ),
@@ -1854,20 +1974,20 @@ class _EmergencyContactCard extends StatelessWidget {
               ),
             ],
           ),
-          child: Icon(icon, color: Colors.white, size: 24),
+          child: Icon(icon, color: Theme.of(context).colorScheme.onPrimary, size: 24),
         ),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyLarge?.color,
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),
         ),
         subtitle: Text(
           phone,
-          style: const TextStyle(
-            color: Colors.white70,
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyMedium?.color,
             fontSize: 14,
           ),
         ),
@@ -1900,7 +2020,7 @@ class _EmergencyContactCard extends StatelessWidget {
             child: Text(
               AppLocalizations.of(context)!.call,
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
                 fontWeight: FontWeight.w700,
                 fontSize: 14,
               ),
@@ -1969,12 +2089,12 @@ class ServiceForm extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Form for "$title" is coming soon!',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
-          backgroundColor: const Color(0xFF3F51B5),
+          backgroundColor: Theme.of(context).colorScheme.primary,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.all(16),
@@ -1988,38 +2108,38 @@ class ServiceForm extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2F45),
+        color: Theme.of(context).inputDecorationTheme.fillColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withAlpha((0.1 * 255).toInt())),
+        border: Border.all(color: (Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black).withAlpha((0.1 * 255).toInt())),
       ),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF3F51B5).withAlpha((0.1 * 255).toInt()),
+            color: Theme.of(context).colorScheme.primary.withAlpha((0.1 * 255).toInt()),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: const Color(0xFF64B5F6), size: 20),
+          child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
         ),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: Theme.of(context).textTheme.bodyLarge?.color,
           ),
         ),
         trailing: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
+              colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.primary.withAlpha(204)],
               begin: Alignment.centerLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.all(Radius.circular(12)),
             boxShadow: [
               BoxShadow(
-                color: Color(0xFF3F51B5),
+                color: Theme.of(context).colorScheme.primary,
                 blurRadius: 8,
                 offset: Offset(0, 2),
               ),
@@ -2036,7 +2156,7 @@ class ServiceForm extends StatelessWidget {
             child: Text(
               AppLocalizations.of(context)!.access,
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),

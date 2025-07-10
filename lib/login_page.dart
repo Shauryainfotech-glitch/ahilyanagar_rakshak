@@ -68,15 +68,15 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFF0A0E21),
-              Color(0xFF1A1F35),
-              Color(0xFF2A2F45),
-            ],
+            colors: isDark ? [Color(0xFF0A0E21), Color(0xFF1A1F35)] : [Color(0xFF2A2F45), Color(0xFF1A1F35)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -99,7 +99,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         padding: EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
+                            colors: isDark ? [Color(0xFF3F51B5), Color(0xFF64B5F6)] : [Color(0xFF3F51B5), Color(0xFF64B5F6)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -292,7 +292,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               height: 56,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
+                                  colors: isDark ? [Color(0xFF3F51B5), Color(0xFF64B5F6)] : [Color(0xFF3F51B5), Color(0xFF64B5F6)],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                 ),

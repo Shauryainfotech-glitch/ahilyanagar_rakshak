@@ -40,6 +40,13 @@ class PoliceServicesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.white;
+    final mainGradient = isDark
+        ? [Color(0xFF121212), Color(0xFF23284A)]
+        : [Color(0xFFF5F5F5), Color(0xFFE0E0E0)];
     return MaterialApp(
       title: 'Police Services',
       theme: ThemeData.dark().copyWith(
@@ -245,6 +252,13 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.white;
+    final mainGradient = isDark
+        ? [Color(0xFF121212), Color(0xFF23284A)]
+        : [Color(0xFFF5F5F5), Color(0xFFE0E0E0)];
     return Card(
       child: ListTile(
         leading: Icon(service.icon, size: 32),

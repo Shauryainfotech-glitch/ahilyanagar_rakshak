@@ -42,6 +42,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final errorColor = Theme.of(context).colorScheme.error;
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -82,7 +87,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 ),
                 SizedBox(height: 16),
                 if (_errorMessage != null)
-                  Text(_errorMessage!, style: TextStyle(color: Colors.red)),
+                  Text(_errorMessage!, style: TextStyle(color: errorColor)),
                 SizedBox(height: 16),
                 _isLoading
                     ? CircularProgressIndicator()
