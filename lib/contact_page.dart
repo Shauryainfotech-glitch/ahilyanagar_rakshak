@@ -15,7 +15,6 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
   final TextEditingController _searchController = TextEditingController();
 
   // Sample dynamic news data for Ahilyanagar Police
-  // Sample dynamic news data for Ahilyanagar Police
   final List<Map<String, String>> _newsList = [
     {
       'title': 'Ahilyanagar Police Launches New Safety App',
@@ -43,40 +42,6 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
     },
   ];
 
-  // Police station locations with addresses and coordinates
-  final List<Map<String, dynamic>> _policeStations = [
-    {
-      'name': 'Ahilyanagar Police Station',
-      'address': 'Police Station Road, Ahilyanagar, Maharashtra 413501',
-      'phone': '02462-123456',
-      'email': 'ahilyanagar.ps@maharashtrapolice.gov.in',
-      'latitude': 19.0760,
-      'longitude': 72.8777,
-      'officer': 'Inspector Sharma',
-      'officer_phone': '02462-123458',
-    },
-    {
-      'name': 'Ahilyanagar Traffic Police Station',
-      'address': 'Main Road, Near Bus Stand, Ahilyanagar, Maharashtra 413501',
-      'phone': '02462-123457',
-      'email': 'ahilyanagar.traffic@maharashtrapolice.gov.in',
-      'latitude': 19.0765,
-      'longitude': 72.8782,
-      'officer': 'Inspector Deshmukh',
-      'officer_phone': '02462-123461',
-    },
-    {
-      'name': 'Ahilyanagar Cyber Crime Cell',
-      'address': 'Police HQ, Cyber Crime Wing, Ahilyanagar, Maharashtra 413501',
-      'phone': '02462-123458',
-      'email': 'ahilyanagar.cyber@maharashtrapolice.gov.in',
-      'latitude': 19.0755,
-      'longitude': 72.8767,
-      'officer': 'SI Singh',
-      'officer_phone': '02462-123462',
-    },
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -93,167 +58,99 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0A0E21), Color(0xFF1A1F35)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Enhanced Header
-              Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF1A1F35), Color(0xFF2A2F45)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+      backgroundColor: Colors.grey[50],
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Container(
+              color: Colors.white,
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_back, color: Colors.black87),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      Expanded(
+                        child: Text(
+                          'Contacts',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.more_vert, color: Colors.black87),
+                        onPressed: () {},
+                      ),
+                    ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 15,
-                      offset: Offset(0, 5),
+                  SizedBox(height: 8),
+                  // Search Bar
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(25),
                     ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFFE91E63), Color(0xFFF06292)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFFE91E63).withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Icon(Icons.emergency_rounded, color: Colors.white, size: 28),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Emergency & Contact',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                '24/7 Emergency Support',
-                                style: TextStyle(
-                                  color: Color(0xFF64B5F6),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search contacts...',
+                        prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      onChanged: (value) {
+                        setState(() {});
+                      },
                     ),
-                    SizedBox(height: 16),
-                    // Search Bar
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF3F51B5).withOpacity(0.1),
-                            blurRadius: 8,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Search emergency numbers...',
-                          prefixIcon: Icon(Icons.search_rounded, color: Color(0xFF64B5F6)),
-                          filled: true,
-                          fillColor: Color(0xFF2A2F45),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide.none,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: Color(0xFF3F51B5).withOpacity(0.3)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: Color(0xFF64B5F6), width: 2),
-                          ),
-                          hintStyle: TextStyle(color: Colors.white54),
-                        ),
-                        style: TextStyle(color: Colors.white),
-                        onChanged: (value) {
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    // Enhanced Tab Bar
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFF2A2F45),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: TabBar(
-                        controller: _tabController,
-                        tabs: _tabs.map((t) => Tab(
-                          child: Text(
-                            t,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        )).toList(),
-                        indicatorColor: Color(0xFFE91E63),
-                        indicatorWeight: 3,
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        labelColor: Colors.white,
-                        unselectedLabelColor: Colors.white70,
-                        dividerColor: Colors.transparent,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              // Tab Content
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _EmergencySection(search: _searchController.text),
-                    _PoliceContacts(search: _searchController.text),
-                    _PoliceStations(search: _searchController.text),
-                    _HelplineList(search: _searchController.text),
-                    _buildNewsTab(),
-                  ],
-                ),
+            ),
+            
+            // Tab Bar
+            Container(
+              color: Colors.white,
+              child: TabBar(
+                controller: _tabController,
+                tabs: _tabs.map((t) => Tab(
+                  child: Text(
+                    t,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: Colors.black87,
+                    ),
+                  ),
+                )).toList(),
+                indicatorColor: Colors.blue[600],
+                indicatorWeight: 3,
+                labelColor: Colors.blue[600],
+                unselectedLabelColor: Colors.grey[600],
+                dividerColor: Colors.grey[300],
               ),
-            ],
-          ),
+            ),
+            
+            // Tab Content
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _EmergencySection(search: _searchController.text),
+                  _PoliceContacts(search: _searchController.text),
+                  _PoliceStations(search: _searchController.text),
+                  _HelplineList(search: _searchController.text),
+                  _buildNewsTab(),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -265,39 +162,20 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
       itemCount: _newsList.length,
       itemBuilder: (context, index) {
         final news = _newsList[index];
-        return Container(
-          margin: EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: Color(0xFF2A2F45),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
+        return Card(
+          margin: EdgeInsets.only(bottom: 12),
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: ListTile(
             contentPadding: EdgeInsets.all(16),
-            leading: Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(Icons.article_rounded, color: Colors.white, size: 24),
+            leading: CircleAvatar(
+              backgroundColor: Colors.blue[100],
+              child: Icon(Icons.article, color: Colors.blue[600]),
             ),
             title: Text(
               news['title'] ?? '',
               style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
             ),
@@ -307,17 +185,17 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
                 SizedBox(height: 8),
                 Text(
                   news['description'] ?? '',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
                 SizedBox(height: 8),
                 Text(
                   'Date: ${news['date']}',
-                  style: TextStyle(color: Color(0xFF64B5F6), fontSize: 12),
+                  style: TextStyle(color: Colors.blue[600], fontSize: 12),
                 ),
               ],
             ),
             trailing: IconButton(
-              icon: Icon(Icons.open_in_new_rounded, color: Color(0xFF64B5F6)),
+              icon: Icon(Icons.open_in_new, color: Colors.blue[600]),
               onPressed: () async {
                 final url = news['url'];
                 if (url != null && await canLaunchUrl(Uri.parse(url))) {
@@ -336,11 +214,10 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFF2A2F45),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           news['title'] ?? '',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -348,21 +225,18 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
           children: [
             Text(
               news['description'] ?? '',
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(color: Colors.grey[600]),
             ),
             SizedBox(height: 12),
             Text(
               'Date: ${news['date']}',
-              style: TextStyle(color: Color(0xFF64B5F6), fontSize: 12),
+              style: TextStyle(color: Colors.blue[600], fontSize: 12),
             ),
           ],
         ),
         actions: [
           TextButton(
-            child: Text(
-              'Read More',
-              style: TextStyle(color: Color(0xFF64B5F6)),
-            ),
+            child: Text('Read More', style: TextStyle(color: Colors.blue[600])),
             onPressed: () async {
               final url = news['url'];
               if (url != null && await canLaunchUrl(Uri.parse(url))) {
@@ -372,7 +246,7 @@ class _ContactPageState extends State<ContactPage> with SingleTickerProviderStat
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF3F51B5),
+              backgroundColor: Colors.blue[600],
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Navigator.of(context).pop(),
@@ -393,71 +267,71 @@ class _EmergencySection extends StatelessWidget {
       'name': 'Police Emergency',
       'number': '100',
       'description': 'General Police Emergency',
-      'icon': Icons.local_police_rounded,
-      'color': Color(0xFFE91E63),
+      'icon': Icons.local_police,
+      'color': Colors.red,
     },
     {
       'name': 'Women Helpline',
       'number': '1091',
       'description': 'Women Safety & Support',
-      'icon': Icons.woman_rounded,
-      'color': Color(0xFF9C27B0),
+      'icon': Icons.woman,
+      'color': Colors.purple,
     },
     {
       'name': 'Child Helpline',
       'number': '1098',
       'description': 'Child Protection & Support',
-      'icon': Icons.child_care_rounded,
-      'color': Color(0xFFFF9800),
+      'icon': Icons.child_care,
+      'color': Colors.orange,
     },
     {
       'name': 'Ambulance',
       'number': '108',
       'description': 'Medical Emergency',
-      'icon': Icons.medical_services_rounded,
-      'color': Color(0xFF4CAF50),
+      'icon': Icons.medical_services,
+      'color': Colors.green,
     },
     {
       'name': 'Fire Emergency',
       'number': '101',
       'description': 'Fire & Rescue Services',
-      'icon': Icons.local_fire_department_rounded,
-      'color': Color(0xFFFF5722),
+      'icon': Icons.local_fire_department,
+      'color': Colors.deepOrange,
     },
     {
       'name': 'Disaster Management',
       'number': '1078',
       'description': 'National Disaster Response',
-      'icon': Icons.warning_rounded,
-      'color': Color(0xFFFFC107),
+      'icon': Icons.warning,
+      'color': Colors.amber,
     },
     {
       'name': 'Railway Helpline',
       'number': '139',
       'description': 'Railway Emergency',
-      'icon': Icons.train_rounded,
-      'color': Color(0xFF795548),
+      'icon': Icons.train,
+      'color': Colors.brown,
     },
     {
       'name': 'Senior Citizen Helpline',
       'number': '14567',
       'description': 'Senior Citizen Support',
-      'icon': Icons.elderly_rounded,
-      'color': Color(0xFF607D8B),
+      'icon': Icons.elderly,
+      'color': Colors.blueGrey,
     },
     {
       'name': 'Anti-Poison',
       'number': '1066',
       'description': 'Poison Information Center',
-      'icon': Icons.sanitizer_rounded,
-      'color': Color(0xFF8BC34A),
+      'icon': Icons.sanitizer,
+      'color': Colors.lightGreen,
     },
     {
       'name': 'Blood Bank',
       'number': '104',
       'description': 'Blood Bank Information',
-      'icon': Icons.bloodtype_rounded,
-      'color': Color(0xFFE91E63),
+      'icon': Icons.bloodtype,
+      'color': Colors.red,
     },
   ];
 
@@ -469,45 +343,7 @@ class _EmergencySection extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Cannot launch dialer on this device.'),
-          backgroundColor: Color(0xFFE91E63),
-        ),
-      );
-    }
-  }
-
-  Future<void> _shareLocation(BuildContext context) async {
-    try {
-      final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      final url = 'https://www.google.com/maps/search/?api=1&query=${position.latitude},${position.longitude}';
-      if (await canLaunchUrl(Uri.parse(url))) {
-        await launchUrl(Uri.parse(url));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Could not launch map.'),
-            backgroundColor: Color(0xFFE91E63),
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Location error: $e'),
-          backgroundColor: Color(0xFFE91E63),
-        ),
-      );
-    }
-  }
-
-  Future<void> _sendEmergencyEmail(BuildContext context) async {
-    final Uri url = Uri(scheme: 'mailto', path: 'emergency@ahilyanagarpolice.gov.in');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Cannot launch email app on this device.'),
-          backgroundColor: Color(0xFFE91E63),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -520,188 +356,53 @@ class _EmergencySection extends StatelessWidget {
       e['number'].contains(search)
     ).toList();
 
-    return SingleChildScrollView(
+    return ListView.builder(
       padding: EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // Emergency Actions
-          Container(
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFFE91E63), Color(0xFFF06292)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0xFFE91E63).withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: Offset(0, 5),
-                ),
-              ],
+      itemCount: filtered.length,
+      itemBuilder: (context, index) {
+        final emergency = filtered[index];
+        return Card(
+          margin: EdgeInsets.only(bottom: 8),
+          elevation: 1,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            leading: CircleAvatar(
+              backgroundColor: emergency['color'].withOpacity(0.1),
+              child: Icon(emergency['icon'], color: emergency['color']),
             ),
-            child: Column(
+            title: Text(
+              emergency['name'],
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Icon(Icons.emergency_rounded, color: Colors.white, size: 32),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Emergency Actions',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
+                Text(
+                  emergency['description'],
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
-                SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _callNumber('100', context),
-                        icon: Icon(Icons.call_rounded),
-                        label: Text('Call Police'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Color(0xFFE91E63),
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _shareLocation(context),
-                        icon: Icon(Icons.location_on_rounded),
-                        label: Text('Share Location'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Color(0xFFE91E63),
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _sendEmergencyEmail(context),
-                        icon: Icon(Icons.email_rounded),
-                        label: Text('Emergency Email'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Color(0xFFE91E63),
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ),
-                  ],
+                SizedBox(height: 4),
+                Text(
+                  emergency['number'],
+                  style: TextStyle(
+                    color: emergency['color'],
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
-          ),
-          SizedBox(height: 24),
-          
-          // Emergency Numbers
-          Text(
-            'Emergency Numbers',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+            trailing: IconButton(
+              icon: Icon(Icons.call, color: emergency['color']),
+              onPressed: () => _callNumber(emergency['number'], context),
             ),
           ),
-          SizedBox(height: 16),
-          
-          ...filtered.map((emergency) => Container(
-            margin: EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: Color(0xFF2A2F45),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: ListTile(
-              contentPadding: EdgeInsets.all(16),
-              leading: Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: emergency['color'].withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(emergency['icon'], color: emergency['color'], size: 24),
-              ),
-              title: Text(
-                emergency['name'],
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 4),
-                  Text(
-                    emergency['description'],
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    emergency['number'],
-                    style: TextStyle(
-                      color: emergency['color'],
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              trailing: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [emergency['color'], emergency['color'].withOpacity(0.7)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: emergency['color'].withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  icon: Icon(Icons.call_rounded, color: Colors.white),
-                  onPressed: () => _callNumber(emergency['number'], context),
-                ),
-              ),
-            ),
-          )),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -731,7 +432,7 @@ class _PoliceContacts extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Cannot launch dialer on this device.'),
-          backgroundColor: Color(0xFFE91E63),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -745,95 +446,89 @@ class _PoliceContacts extends StatelessWidget {
       c['phone']!.contains(search)
     ).toList();
 
+    // Group contacts by first letter
+    Map<String, List<Map<String, String>>> groupedContacts = {};
+    for (var contact in filtered) {
+      String firstLetter = contact['name']![0].toUpperCase();
+      if (!groupedContacts.containsKey(firstLetter)) {
+        groupedContacts[firstLetter] = [];
+      }
+      groupedContacts[firstLetter]!.add(contact);
+    }
+
+    List<String> sortedLetters = groupedContacts.keys.toList()..sort();
+
     return ListView.builder(
       padding: EdgeInsets.all(16),
-      itemCount: filtered.length,
+      itemCount: sortedLetters.length,
       itemBuilder: (context, index) {
-        final contact = filtered[index];
-        return Container(
-          margin: EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Color(0xFF2A2F45),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: ListTile(
-            contentPadding: EdgeInsets.all(16),
-            leading: Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+        String letter = sortedLetters[index];
+        List<Map<String, String>> contacts = groupedContacts[letter]!;
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Section header
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Text(
+                letter,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue[600],
                 ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0xFF3F51B5).withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
+              ),
+            ),
+            // Contacts in this section
+            ...contacts.map((contact) => Card(
+              margin: EdgeInsets.only(bottom: 1),
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+              child: ListTile(
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                leading: CircleAvatar(
+                  backgroundColor: Colors.blue[100],
+                  child: Text(
+                    contact['name']![0],
+                    style: TextStyle(
+                      color: Colors.blue[600],
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ],
-              ),
-              child: Icon(Icons.local_police_rounded, color: Colors.white, size: 24),
-            ),
-            title: Text(
-              contact['name']!,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 4),
-                Text(
-                  contact['designation']!,
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
-                SizedBox(height: 8),
-                Text(
-                  contact['phone']!,
+                title: Text(
+                  contact['name']!,
                   style: TextStyle(
-                    color: Color(0xFF64B5F6),
+                    fontWeight: FontWeight.w500,
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ],
-            ),
-            trailing: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF4CAF50), Color(0xFF81C784)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      contact['designation']!,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      contact['phone']!,
+                      style: TextStyle(
+                        color: Colors.blue[600],
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0xFF4CAF50).withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
+                trailing: IconButton(
+                  icon: Icon(Icons.call, color: Colors.green[600]),
+                  onPressed: () => _callNumber(contact['phone']!, context),
+                ),
               ),
-              child: IconButton(
-                icon: Icon(Icons.call_rounded, color: Colors.white),
-                onPressed: () => _callNumber(contact['phone']!, context),
-              ),
-            ),
-          ),
+            )).toList(),
+          ],
         );
       },
     );
@@ -849,57 +544,57 @@ class _HelplineList extends StatelessWidget {
       'name': 'Women Helpline',
       'phone': '1091',
       'description': '24/7 Women Safety Support',
-      'icon': Icons.woman_rounded,
-      'color': Color(0xFF9C27B0),
+      'icon': Icons.woman,
+      'color': Colors.purple,
     },
     {
       'name': 'Child Helpline',
       'phone': '1098',
       'description': 'Child Protection & Welfare',
-      'icon': Icons.child_care_rounded,
-      'color': Color(0xFFFF9800),
+      'icon': Icons.child_care,
+      'color': Colors.orange,
     },
     {
       'name': 'Senior Citizen Helpline',
       'phone': '14567',
       'description': 'Senior Citizen Support',
-      'icon': Icons.elderly_rounded,
-      'color': Color(0xFF607D8B),
+      'icon': Icons.elderly,
+      'color': Colors.blueGrey,
     },
     {
       'name': 'Mental Health Helpline',
       'phone': '1800-599-0019',
       'description': 'Mental Health Support',
-      'icon': Icons.psychology_rounded,
-      'color': Color(0xFF8BC34A),
+      'icon': Icons.psychology,
+      'color': Colors.lightGreen,
     },
     {
       'name': 'Drug Abuse Helpline',
       'phone': '1800-11-0031',
       'description': 'Drug Abuse Prevention',
-      'icon': Icons.medical_services_rounded,
-      'color': Color(0xFFE91E63),
+      'icon': Icons.medical_services,
+      'color': Colors.red,
     },
     {
       'name': 'Cyber Crime Helpline',
       'phone': '1930',
       'description': 'Cyber Crime Reporting',
-      'icon': Icons.computer_rounded,
-      'color': Color(0xFF3F51B5),
+      'icon': Icons.computer,
+      'color': Colors.blue,
     },
     {
       'name': 'Railway Helpline',
       'phone': '139',
       'description': 'Railway Emergency',
-      'icon': Icons.train_rounded,
-      'color': Color(0xFF795548),
+      'icon': Icons.train,
+      'color': Colors.brown,
     },
     {
       'name': 'Anti-Corruption Helpline',
       'phone': '1064',
       'description': 'Corruption Complaints',
-      'icon': Icons.gavel_rounded,
-      'color': Color(0xFFFF5722),
+      'icon': Icons.gavel,
+      'color': Colors.deepOrange,
     },
   ];
 
@@ -911,7 +606,7 @@ class _HelplineList extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Cannot launch dialer on this device.'),
-          backgroundColor: Color(0xFFE91E63),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -929,47 +624,31 @@ class _HelplineList extends StatelessWidget {
       itemCount: filtered.length,
       itemBuilder: (context, index) {
         final helpline = filtered[index];
-        return Container(
-          margin: EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Color(0xFF2A2F45),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
+        return Card(
+          margin: EdgeInsets.only(bottom: 8),
+          elevation: 1,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: ListTile(
-            contentPadding: EdgeInsets.all(16),
-            leading: Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: helpline['color'].withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(helpline['icon'], color: helpline['color'], size: 24),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            leading: CircleAvatar(
+              backgroundColor: helpline['color'].withOpacity(0.1),
+              child: Icon(helpline['icon'], color: helpline['color']),
             ),
             title: Text(
               helpline['name'],
               style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 4),
                 Text(
                   helpline['description'],
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: 4),
                 Text(
                   helpline['phone'],
                   style: TextStyle(
@@ -980,26 +659,9 @@ class _HelplineList extends StatelessWidget {
                 ),
               ],
             ),
-            trailing: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [helpline['color'], helpline['color'].withOpacity(0.7)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: helpline['color'].withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: IconButton(
-                icon: Icon(Icons.call_rounded, color: Colors.white),
-                onPressed: () => _callNumber(helpline['phone'], context),
-              ),
+            trailing: IconButton(
+              icon: Icon(Icons.call, color: helpline['color']),
+              onPressed: () => _callNumber(helpline['phone'], context),
             ),
           ),
         );
@@ -1053,7 +715,7 @@ class _PoliceStations extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Cannot launch dialer on this device.'),
-          backgroundColor: Color(0xFFE91E63),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -1067,7 +729,7 @@ class _PoliceStations extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Cannot launch email app on this device.'),
-          backgroundColor: Color(0xFFE91E63),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -1081,7 +743,7 @@ class _PoliceStations extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Could not launch map.'),
-          backgroundColor: Color(0xFFE91E63),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -1100,45 +762,27 @@ class _PoliceStations extends StatelessWidget {
       itemCount: filtered.length,
       itemBuilder: (context, index) {
         final station = filtered[index];
-        return Container(
+        return Card(
           margin: EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: Color(0xFF2A2F45),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Column(
             children: [
               // Station Header
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: Colors.blue[50],
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
+                    topLeft: Radius.circular(12),
+                    topRight: Radius.circular(12),
                   ),
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(Icons.location_on_rounded, color: Colors.white, size: 24),
+                    CircleAvatar(
+                      backgroundColor: Colors.blue[100],
+                      child: Icon(Icons.location_on, color: Colors.blue[600]),
                     ),
                     SizedBox(width: 16),
                     Expanded(
@@ -1148,16 +792,16 @@ class _PoliceStations extends StatelessWidget {
                           Text(
                             station['name'],
                             style: TextStyle(
-                              color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
                           ),
                           SizedBox(height: 4),
                           Text(
                             station['officer'],
                             style: TextStyle(
-                              color: Colors.white70,
+                              color: Colors.grey[600],
                               fontSize: 14,
                             ),
                           ),
@@ -1176,20 +820,20 @@ class _PoliceStations extends StatelessWidget {
                     // Address
                     Row(
                       children: [
-                        Icon(Icons.home_rounded, color: Color(0xFF64B5F6), size: 20),
+                        Icon(Icons.home, color: Colors.grey[600], size: 20),
                         SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             station['address'],
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.grey[700],
                               fontSize: 14,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 12),
+                    SizedBox(height: 16),
                     
                     // Contact Actions
                     Row(
@@ -1197,10 +841,10 @@ class _PoliceStations extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () => _callNumber(station['phone'], context),
-                            icon: Icon(Icons.call_rounded, size: 16),
+                            icon: Icon(Icons.call, size: 16),
                             label: Text('Call Station'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF4CAF50),
+                              backgroundColor: Colors.green[600],
                               foregroundColor: Colors.white,
                               padding: EdgeInsets.symmetric(vertical: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1211,10 +855,10 @@ class _PoliceStations extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () => _callNumber(station['officer_phone'], context),
-                            icon: Icon(Icons.person_rounded, size: 16),
+                            icon: Icon(Icons.person, size: 16),
                             label: Text('Call Officer'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF3F51B5),
+                              backgroundColor: Colors.blue[600],
                               foregroundColor: Colors.white,
                               padding: EdgeInsets.symmetric(vertical: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1230,10 +874,10 @@ class _PoliceStations extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () => _sendEmail(station['email'], context),
-                            icon: Icon(Icons.email_rounded, size: 16),
+                            icon: Icon(Icons.email, size: 16),
                             label: Text('Email'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFFF9800),
+                              backgroundColor: Colors.orange[600],
                               foregroundColor: Colors.white,
                               padding: EdgeInsets.symmetric(vertical: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1244,10 +888,10 @@ class _PoliceStations extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () => _openLocation(station['latitude'], station['longitude'], station['name'], context),
-                            icon: Icon(Icons.map_rounded, size: 16),
+                            icon: Icon(Icons.map, size: 16),
                             label: Text('Navigate'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFE91E63),
+                              backgroundColor: Colors.red[600],
                               foregroundColor: Colors.white,
                               padding: EdgeInsets.symmetric(vertical: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

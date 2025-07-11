@@ -1,288 +1,578 @@
 import 'package:flutter/material.dart';
-// Import real form widgets from the forms directory
-import 'forms/complaint_registration_form.dart';
-import 'forms/mike_sanction_registration_form.dart';
-import 'forms/fir_download_form.dart';
-import 'forms/accident_gd_form.dart';
-import 'forms/lost_property_form.dart';
-import 'forms/payment_history_form.dart';
-import 'forms/event_performance_form.dart';
-import 'forms/grievance_redressal_form.dart';
-import 'forms/arrest_search_form.dart';
-import 'forms/feedback_form.dart';
-import 'forms/blood_donor_form.dart';
-import 'forms/blood_request_form.dart';
-import 'forms/locked_house_info_form.dart';
-import 'forms/senior_citizen_info_form.dart';
-import 'forms/single_women_living_alone_form.dart';
-import 'forms/report_abduction_form.dart';
-import 'forms/report_cyber_fraud_form.dart';
-import 'forms/share_information_form.dart';
-import 'forms/appointment_with_sho_form.dart';
-import 'forms/search_police_station_form.dart';
-import 'forms/cyber_security_info_form.dart';
-import 'forms/tourist_guide_form.dart';
-import 'forms/user_manual_form.dart';
-import 'forms/awareness_classes_form.dart';
-import 'forms/rate_police_station_form.dart';
-import 'forms/rate_application_form.dart';
-import 'forms/social_media_of_police_form.dart';
-import 'forms/maharashtra_government_form.dart';
-import 'forms/ahilyanagar_police_form.dart';
-import 'forms/cyber_done_form.dart';
+import 'package:provider/provider.dart';
+import 'l10n/language_provider.dart';
+import 'l10n/app_localizations.dart';
+import 'services/role_service.dart';
 
-void main() {
-  runApp(const PoliceServicesApp());
-}
-
-class PoliceServicesApp extends StatelessWidget {
-  const PoliceServicesApp({super.key});
+class ServicesPage extends StatefulWidget {
+  const ServicesPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Police Services',
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        cardTheme: CardThemeData(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        ),
-      ),
-      home: const ServicesHomePage(),
-      debugShowCheckedModeBanner: false,
+  _ServicesPageState createState() => _ServicesPageState();
+}
+
+class _ServicesPageState extends State<ServicesPage>
+    with TickerProviderStateMixin {
+  final RoleService _roleService = RoleService();
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  String _userRole = 'citizen';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
     );
-  }
-}
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutCubic,
+    ));
 
-class ServicesHomePage extends StatelessWidget {
-  const ServicesHomePage({super.key});
+    _loadUserRole();
+    _animationController.forward();
+  }
+
+  Future<void> _loadUserRole() async {
+    final role = await _roleService.getCurrentUserRole();
+    setState(() {
+      _userRole = role ?? 'citizen';
+      _isLoading = false;
+    });
+    
+    _listenToRoleChanges();
+  }
+
+  void _listenToRoleChanges() {
+    _roleService.listenToRoleChanges().listen((newRole) {
+      if (newRole != null && mounted) {
+        setState(() {
+          _userRole = newRole;
+        });
+      }
+    });
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return ServicesListView();
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
-}
 
-class ServicesListView extends StatelessWidget {
-  const ServicesListView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final List<PoliceService> services = [
-      PoliceService(
-        name: 'Complaint Registration',
-        icon: Icons.report_problem,
-        formBuilder: () => ComplaintRegistrationForm(),
-      ),
-      PoliceService(
-        name: 'Mike Sanction Registration',
-        icon: Icons.verified_user,
-        formBuilder: () => MikeSanctionRegistrationForm(),
-      ),
-      PoliceService(
-        name: 'FIR Download',
-        icon: Icons.download,
-        formBuilder: () => FIRDownloadForm(),
-      ),
-      PoliceService(
-        name: 'Accident GD',
-        icon: Icons.car_crash,
-        formBuilder: () => AccidentGDForm(),
-      ),
-      PoliceService(
-        name: 'Lost Property',
-        icon: Icons.search_off,
-        formBuilder: () => LostPropertyForm(),
-      ),
-      PoliceService(
-        name: 'Payment History',
-        icon: Icons.payment,
-        formBuilder: () => PaymentHistoryForm(),
-      ),
-      PoliceService(
-        name: 'Event Performance',
-        icon: Icons.event,
-        formBuilder: () => EventPerformanceForm(),
-      ),
-      PoliceService(
-        name: 'Grievance Redressal',
-        icon: Icons.gavel,
-        formBuilder: () => GrievanceRedressalForm(),
-      ),
-      PoliceService(
-        name: 'Arrest Search',
-        icon: Icons.search,
-        formBuilder: () => ArrestSearchForm(),
-      ),
-      PoliceService(
-        name: 'Feedback',
-        icon: Icons.feedback,
-        formBuilder: () => FeedbackForm(),
-      ),
-      PoliceService(
-        name: 'Blood Donor',
-        icon: Icons.bloodtype,
-        formBuilder: () => BloodDonorForm(),
-      ),
-      PoliceService(
-        name: 'Blood Request',
-        icon: Icons.bloodtype,
-        formBuilder: () => BloodRequestForm(),
-      ),
-      PoliceService(
-        name: 'Locked House Information',
-        icon: Icons.lock,
-        formBuilder: () => LockedHouseInfoForm(),
-      ),
-      PoliceService(
-        name: 'Senior Citizen Information',
-        icon: Icons.elderly,
-        formBuilder: () => SeniorCitizenInfoForm(),
-      ),
-      PoliceService(
-        name: 'Single Women Living Alone',
-        icon: Icons.female,
-        formBuilder: () => SingleWomenLivingAloneForm(),
-      ),
-      PoliceService(
-        name: 'Report Abduction',
-        icon: Icons.report,
-        formBuilder: () => ReportAbductionForm(),
-      ),
-      PoliceService(
-        name: 'Report Cyber Fraud',
-        icon: Icons.security,
-        formBuilder: () => ReportCyberFraudForm(),
-      ),
-      PoliceService(
-        name: 'Share Information',
-        icon: Icons.share,
-        formBuilder: () => ShareInformationForm(),
-      ),
-      PoliceService(
-        name: 'Appointment with SHO',
-        icon: Icons.person,
-        formBuilder: () => AppointmentWithSHOForm(),
-      ),
-      PoliceService(
-        name: 'Search Police Station',
-        icon: Icons.search,
-        formBuilder: () => SearchPoliceStationForm(),
-      ),
-      PoliceService(
-        name: 'Cyber Security Information',
-        icon: Icons.security,
-        formBuilder: () => CyberSecurityInfoForm(),
-      ),
-      PoliceService(
-        name: 'Tourist Guide',
-        icon: Icons.tour,
-        formBuilder: () => TouristGuideForm(),
-      ),
-      PoliceService(
-        name: 'User Manual',
-        icon: Icons.menu_book,
-        formBuilder: () => UserManualForm(),
-      ),
-      PoliceService(
-        name: 'Awareness Classes',
-        icon: Icons.school,
-        formBuilder: () => AwarenessClassesForm(),
-      ),
-      PoliceService(
-        name: 'Rate Police Station',
-        icon: Icons.star,
-        formBuilder: () => RatePoliceStationForm(),
-      ),
-      PoliceService(
-        name: 'Rate Application',
-        icon: Icons.star_rate,
-        formBuilder: () => RateApplicationForm(),
-      ),
-      PoliceService(
-        name: 'Social Media of Police',
-        icon: Icons.public,
-        formBuilder: () => SocialMediaOfPoliceForm(),
-      ),
-      PoliceService(
-        name: 'Maharashtra Government',
-        icon: Icons.account_balance,
-        formBuilder: () => MaharashtraGovernmentForm(),
-      ),
-      PoliceService(
-        name: 'Ahilyanagar Police',
-        icon: Icons.local_police,
-        formBuilder: () => AhilyanagarPoliceForm(),
-      ),
-      PoliceService(
-        name: 'Cyber Done',
-        icon: Icons.done,
-        formBuilder: () => CyberDoneForm(),
-      ),
+  List<Map<String, dynamic>> _getCitizenServices() {
+    return [
+      {
+        'title': 'Complaint Registration',
+        'icon': Icons.report_problem_rounded,
+        'route': '/complaint_registration',
+        'color': Colors.red,
+        'description': 'Register complaints and grievances',
+      },
+      {
+        'title': 'FIR Download',
+        'icon': Icons.download_rounded,
+        'route': '/fir_download',
+        'color': Colors.blue,
+        'description': 'Download FIR copies',
+      },
+      {
+        'title': 'Accident GD',
+        'icon': Icons.car_crash_rounded,
+        'route': '/accident_gd',
+        'color': Colors.orange,
+        'description': 'Report accidents and incidents',
+      },
+      {
+        'title': 'Lost Property',
+        'icon': Icons.search_rounded,
+        'route': '/lost_property',
+        'color': Colors.purple,
+        'description': 'Report lost or found items',
+      },
+      {
+        'title': 'Feedback',
+        'icon': Icons.feedback_rounded,
+        'route': '/feedback',
+        'color': Colors.green,
+        'description': 'Submit feedback and suggestions',
+      },
+      {
+        'title': 'Blood Donor',
+        'icon': Icons.bloodtype_rounded,
+        'route': '/blood_donor',
+        'color': Colors.red,
+        'description': 'Register as blood donor',
+      },
+      {
+        'title': 'Blood Request',
+        'icon': Icons.medical_services_rounded,
+        'route': '/blood_request',
+        'color': Colors.pink,
+        'description': 'Request blood donation',
+      },
+      {
+        'title': 'Track My Trip',
+        'icon': Icons.location_on_rounded,
+        'route': '/track_my_trip',
+        'color': Colors.indigo,
+        'description': 'Track your journey safely',
+      },
+      {
+        'title': 'Senior Citizen Info',
+        'icon': Icons.elderly_rounded,
+        'route': '/senior_citizen_info',
+        'color': Colors.amber,
+        'description': 'Information for senior citizens',
+      },
+      {
+        'title': 'Single Women Living Alone',
+        'icon': Icons.woman_rounded,
+        'route': '/single_women_living_alone',
+        'color': Colors.purple,
+        'description': 'Safety information for women',
+      },
+      {
+        'title': 'Report Abduction',
+        'icon': Icons.person_off_rounded,
+        'route': '/report_abduction',
+        'color': Colors.red,
+        'description': 'Report missing persons',
+      },
+      {
+        'title': 'Report Cyber Fraud',
+        'icon': Icons.security_rounded,
+        'route': '/report_cyber_fraud',
+        'color': Colors.cyan,
+        'description': 'Report cyber crimes',
+      },
+      {
+        'title': 'Share Information',
+        'icon': Icons.share_rounded,
+        'route': '/share_information',
+        'color': Colors.teal,
+        'description': 'Share important information',
+      },
+      {
+        'title': 'Appointment with SHO',
+        'icon': Icons.calendar_today_rounded,
+        'route': '/appointment_with_sho',
+        'color': Colors.blue,
+        'description': 'Book appointment with SHO',
+      },
+      {
+        'title': 'Search Police Station',
+        'icon': Icons.location_city_rounded,
+        'route': '/search_police_station',
+        'color': Colors.grey,
+        'description': 'Find nearby police stations',
+      },
+      {
+        'title': 'Cyber Security Info',
+        'icon': Icons.computer_rounded,
+        'route': '/cyber_security_info',
+        'color': Colors.indigo,
+        'description': 'Cyber security guidelines',
+      },
+      {
+        'title': 'Tourist Guide',
+        'icon': Icons.tour_rounded,
+        'route': '/tourist_guide',
+        'color': Colors.orange,
+        'description': 'Tourist information and safety',
+      },
+      {
+        'title': 'User Manual',
+        'icon': Icons.help_rounded,
+        'route': '/user_manual',
+        'color': Colors.green,
+        'description': 'App usage guide',
+      },
+      {
+        'title': 'Awareness Classes',
+        'icon': Icons.school_rounded,
+        'route': '/awareness_classes',
+        'color': Colors.blue,
+        'description': 'Safety awareness programs',
+      },
+      {
+        'title': 'Rate Police Station',
+        'icon': Icons.star_rounded,
+        'route': '/rate_police_station',
+        'color': Colors.amber,
+        'description': 'Rate police station services',
+      },
+      {
+        'title': 'Rate Application',
+        'icon': Icons.thumb_up_rounded,
+        'route': '/rate_application',
+        'color': Colors.green,
+        'description': 'Rate this application',
+      },
+      {
+        'title': 'Social Media of Police',
+        'icon': Icons.share_rounded,
+        'route': '/social_media_of_police',
+        'color': Colors.blue,
+        'description': 'Police social media handles',
+      },
+      {
+        'title': 'Maharashtra Government',
+        'icon': Icons.account_balance_rounded,
+        'route': '/maharashtra_government',
+        'color': Colors.orange,
+        'description': 'Government services',
+      },
+      {
+        'title': 'Ahilyanagar Police',
+        'icon': Icons.local_police_rounded,
+        'route': '/ahilyanagar_police',
+        'color': Colors.red,
+        'description': 'Local police information',
+      },
+      {
+        'title': 'Cyber Done',
+        'icon': Icons.check_circle_rounded,
+        'route': '/cyber_done',
+        'color': Colors.green,
+        'description': 'Completed cyber cases',
+      },
     ];
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Loading services...'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final services = _getServicesForRole();
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.scaffoldBackgroundColor,
+                    theme.cardColor,
+                    theme.scaffoldBackgroundColor,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                                      BoxShadow(
+                      color: isDark
+                          ? Colors.black.withOpacity(0.3)
+                          : Colors.grey.withOpacity(0.15),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                                                          colors: [
+                                _getRoleColor(),
+                                _getRoleColor().withOpacity(0.7),
+                              ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                                                      boxShadow: [
+                              BoxShadow(
+                                color: _getRoleColor().withOpacity(0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                        ),
+                        child: Icon(
+                          Icons.apps_rounded,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Services',
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Available for ${_getRoleDisplayName()}',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: _getRoleColor(),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                                          padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _getRoleColor().withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _getRoleColor().withOpacity(0.3),
+                        ),
+                      ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_rounded,
+                          color: _getRoleColor(),
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'You have access to ${services.length} services as a ${_getRoleDisplayName()}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: _getRoleColor(),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Services Grid
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.85,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
       itemCount: services.length,
       itemBuilder: (context, index) {
         final service = services[index];
-        return ServiceCard(service: service);
-      },
-    );
-  }
-}
-
-class ServiceCard extends StatelessWidget {
-  final PoliceService service;
-
-  const ServiceCard({
-    super.key,
-    required this.service,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Icon(service.icon, size: 32),
-        title: Text(
-          service.name,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-        ),
-        trailing: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue.shade800,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+                      return _buildServiceCard(service, theme, isDark);
+                    },
+                  ),
+                ),
+              ),
             ),
-          ),
-          onPressed: () {
-              print('ACCESS button pressed for: \'${service.name}\'');
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => service.formBuilder()),
-            );
-          },
-          child: const Text('ACCESS'),
+          ],
         ),
       ),
     );
   }
-}
 
-class PoliceService {
-  final String name;
-  final IconData icon;
-  final Widget Function() formBuilder;
+  Widget _buildServiceCard(
+    Map<String, dynamic> service,
+    ThemeData theme,
+    bool isDark,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+                  gradient: LinearGradient(
+            colors: [
+              service['color'].withOpacity(0.1),
+              service['color'].withOpacity(0.05),
+            ],
+            begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+                  borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: service['color'].withOpacity(0.2),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: service['color'].withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => Navigator.pushNamed(context, service['route']),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                                              colors: [
+                          service['color'],
+                          service['color'].withOpacity(0.7),
+                        ],
+                    ),
+                    shape: BoxShape.circle,
+                                          boxShadow: [
+                        BoxShadow(
+                          color: service['color'].withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                  ),
+                  child: Icon(
+                    service['icon'],
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  service['title'],
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: service['color'],
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                                      service['description'],
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
+                    ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-  const PoliceService({
-    required this.name,
-    required this.icon,
-    required this.formBuilder,
-  });
+  String _getRoleDisplayName() {
+    return RoleService.ROLE_DISPLAY_NAMES[_userRole] ?? 'Unknown';
+  }
+
+  Color _getRoleColor() {
+    switch (_userRole) {
+      case 'citizen':
+        return Colors.blue;
+      case 'police':
+        return Colors.red;
+      case 'police_mitr':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  List<Map<String, dynamic>> _getServicesForRole() {
+    switch (_userRole) {
+      case 'citizen':
+        return _getCitizenServices();
+      case 'police':
+        return [
+          // All citizen services plus police-specific services
+          ..._getCitizenServices().where((service) => service['title'] != 'Rate Police Station'),
+          {
+            'title': 'Mike Sanction Registration',
+            'icon': Icons.mic_rounded,
+            'route': '/mike_sanction_registration',
+            'color': Colors.purple,
+            'description': 'Register mike sanctions',
+          },
+          {
+            'title': 'Payment History',
+            'icon': Icons.payment_rounded,
+            'route': '/payment_history',
+            'color': Colors.green,
+            'description': 'View payment history',
+          },
+          {
+            'title': 'Event Performance',
+            'icon': Icons.event_rounded,
+            'route': '/event_performance',
+            'color': Colors.orange,
+            'description': 'Track event performance',
+          },
+          {
+            'title': 'Grievance Redressal',
+            'icon': Icons.gavel_rounded,
+            'route': '/grievance_redressal',
+            'color': Colors.red,
+            'description': 'Handle grievances',
+          },
+          {
+            'title': 'Arrest Search',
+            'icon': Icons.search_rounded,
+            'route': '/arrest_search',
+            'color': Colors.indigo,
+            'description': 'Search arrest records',
+          },
+          {
+            'title': 'Locked House Info',
+            'icon': Icons.home_rounded,
+            'route': '/locked_house_info',
+            'color': Colors.brown,
+            'description': 'Information about locked houses',
+          },
+        ];
+      case 'police_mitr':
+        return _getCitizenServices(); // Same as citizen for now
+      default:
+        return _getCitizenServices();
+    }
+  }
 }

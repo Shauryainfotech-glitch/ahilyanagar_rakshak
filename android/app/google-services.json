@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "1038077548119",
+    "firebase_url": "https://weather-app-1c4fa-default-rtdb.firebaseio.com",
+    "project_id": "weather-app-1c4fa",
+    "storage_bucket": "weather-app-1c4fa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038077548119:android:1fcec6ebb9be4a83cd3512",
+        "android_client_info": {
+          "package_name": "com.ahilyanagar.connect.ahilyanagar_connect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsg5tPtyEVMLrnty3HNbeagTpklU0Zp9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038077548119:android:6d55241c932342decd3512",
+        "android_client_info": {
+          "package_name": "com.example.demo_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsg5tPtyEVMLrnty3HNbeagTpklU0Zp9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038077548119:android:103d0421536b1adccd3512",
+        "android_client_info": {
+          "package_name": "com.example.weather_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsg5tPtyEVMLrnty3HNbeagTpklU0Zp9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'l10n/language_provider.dart';
 import 'l10n/app_localizations.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'main.dart';
+import 'services/role_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -10,23 +14,31 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin {
+class _ProfilePageState extends State<ProfilePage>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  final RoleService _roleService = RoleService();
+  
   late TabController _tabController;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   // Profile Data
-  String name = 'John Doe';
-  String email = 'john.doe@example.com';
-  String phone = '+91 98765 43210';
-  String address = 'Ahilyanagar, Maharashtra, India';
-  String gender = 'Male';
-  String aadhaarNumber = '1234 5678 9012';
-  String emergencyContact = '+91 98765 43211';
+  String name = '';
+  String email = '';
+  String phone = '';
+  String address = '';
+  String gender = '';
+  String role = 'citizen';
+  String policeId = '';
+  String station = '';
+  String aadhaarNumber = '';
+  String emergencyContact = '';
   DateTime? dob;
   final TextEditingController _dobController = TextEditingController();
+  bool _isLoading = true;
+
   bool isEditing = false;
 
   // Settings
@@ -54,14 +66,15 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
-    
-    dob = DateTime(1990, 5, 15);
-    _dobController.text = "${dob!.year}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}";
-    
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
+
+    _fetchUserProfile();
     _animationController.forward();
   }
 
@@ -71,6 +84,74 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     _animationController.dispose();
     _dobController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final snapshot = await FirebaseDatabase.instance.ref('users/${user.uid}').get();
+        if (snapshot.value != null) {
+          final userData = snapshot.value as Map<dynamic, dynamic>;
+          setState(() {
+            name = userData['name'] ?? '';
+            email = userData['email'] ?? '';
+            phone = userData['mobile'] ?? '';
+            gender = userData['gender'] ?? '';
+            role = userData['role'] ?? 'citizen';
+            policeId = userData['policeId'] ?? '';
+            station = userData['station'] ?? '';
+            address = userData['address'] ?? '';
+            emergencyContact = userData['emergencyContact'] ?? '';
+            
+            if (userData['birthDate'] != null) {
+              try {
+                dob = DateTime.parse(userData['birthDate']);
+                _dobController.text = "${dob!.year}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}";
+              } catch (e) {
+                print('Error parsing birth date: $e');
+              }
+            }
+            
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching user profile: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+    
+    _listenToProfileChanges();
+  }
+
+  void _listenToProfileChanges() {
+    _roleService.listenToProfileChanges().listen((profile) {
+      if (profile != null && mounted) {
+        setState(() {
+          name = profile['name'] ?? '';
+          email = profile['email'] ?? '';
+          phone = profile['mobile'] ?? '';
+          gender = profile['gender'] ?? '';
+          role = profile['role'] ?? 'citizen';
+          policeId = profile['policeId'] ?? '';
+          station = profile['station'] ?? '';
+          address = profile['address'] ?? '';
+          emergencyContact = profile['emergencyContact'] ?? '';
+          
+          if (profile['birthDate'] != null) {
+            try {
+              dob = DateTime.parse(profile['birthDate']);
+              _dobController.text = "${dob!.year}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}";
+            } catch (e) {
+              print('Error parsing birth date: $e');
+            }
+          }
+        });
+      }
+    });
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -96,7 +177,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     if (picked != null && picked != dob) {
       setState(() {
         dob = picked;
-        _dobController.text = "${dob!.year}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}";
+        _dobController.text =
+            "${dob!.year}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}";
       });
     }
   }
@@ -111,13 +193,30 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     }
   }
 
-  void _saveProfile() {
+  void _saveProfile() async {
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      setState(() {
-        isEditing = false;
-      });
-      _showSuccessSnackBar(AppLocalizations.of(context)!.profileUpdated);
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          await FirebaseDatabase.instance.ref('users/${user.uid}').update({
+            'name': name,
+            'mobile': phone,
+            'gender': gender,
+            'address': address,
+            'emergencyContact': emergencyContact,
+            'birthDate': dob?.toIso8601String(),
+            'updatedAt': DateTime.now().toIso8601String(),
+          });
+          
+          setState(() {
+            isEditing = false;
+          });
+          _showSuccessSnackBar(AppLocalizations.of(context)!.profileUpdated);
+        }
+      } catch (e) {
+        print('Error saving profile: $e');
+        _showErrorSnackBar('Failed to update profile');
+      }
     }
   }
 
@@ -135,12 +234,19 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 color: const Color(0xFFE91E63).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.logout_rounded, color: Color(0xFFE91E63), size: 24),
+              child: const Icon(
+                Icons.logout_rounded,
+                color: Color(0xFFE91E63),
+                size: 24,
+              ),
             ),
             const SizedBox(width: 12),
             Text(
               AppLocalizations.of(context)!.logout,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -157,13 +263,22 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             ),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop();
-              _showSuccessSnackBar(AppLocalizations.of(context)!.loggedOut);
+              await FirebaseAuth.instance.signOut();
+              if (mounted) {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/login',
+                  (route) => false,
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFE91E63),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: Text(AppLocalizations.of(context)!.logout),
           ),
@@ -183,7 +298,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+              child: const Icon(
+                Icons.check_circle_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -203,29 +322,79 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     );
   }
 
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.error_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFFE57373),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  String _getRoleDisplayName() {
+    return RoleService.ROLE_DISPLAY_NAMES[role] ?? 'Unknown';
+  }
+
+  String _getRoleIcon() {
+    return RoleService.ROLE_ICONS[role] ?? '👤';
+  }
+
+  Color _getRoleColor() {
+    switch (role) {
+      case 'citizen':
+        return Colors.blue;
+      case 'police':
+        return Colors.red;
+      case 'police_mitr':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0A0E21), Color(0xFF1A1F35)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 120), // Add bottom padding for navbar
+            padding: const EdgeInsets.only(bottom: 120),
             child: Column(
               children: [
-                // Enhanced Header with Stats
-                _buildEnhancedHeader(),
-                
-                // Tab Bar with better design
+                _buildEnhancedHeader(theme, isDark),
                 _buildTabBar(),
-                
-                // Tab Content - Now scrollable
                 _buildTabContent(),
               ],
             ),
@@ -235,26 +404,34 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildEnhancedHeader() {
+  Widget _buildEnhancedHeader(ThemeData theme, bool isDark) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
     final isDesktop = screenWidth > 900;
-    
+
     return Container(
-      padding: EdgeInsets.all(isDesktop ? 32 : isTablet ? 24 : 20),
+      padding: EdgeInsets.all(
+        isDesktop
+            ? 32
+            : isTablet
+            ? 24
+            : 20,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF1A1F35),
-            const Color(0xFF2A2F45),
-            const Color(0xFF1A1F35),
+            theme.scaffoldBackgroundColor,
+            theme.cardColor,
+            theme.scaffoldBackgroundColor,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: isDark
+                ? Colors.black.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.15),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -262,42 +439,43 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       ),
       child: Column(
         children: [
-          // Profile Avatar and Info
           if (isDesktop)
-            _buildDesktopHeader()
+            _buildDesktopHeader(theme, isDark)
           else
-            _buildMobileHeader(),
-          
-          SizedBox(height: isDesktop ? 32 : isTablet ? 24 : 20),
-          
-          // Stats Cards
-          if (isDesktop)
-            _buildDesktopStats()
-          else
-            _buildMobileStats(),
+            _buildMobileHeader(theme, isDark),
+          SizedBox(
+            height: isDesktop
+                ? 32
+                : isTablet
+                ? 24
+                : 20,
+          ),
+          if (isDesktop) _buildDesktopStats() else _buildMobileStats(),
         ],
       ),
     );
   }
 
-  Widget _buildMobileHeader() {
+  Widget _buildMobileHeader(ThemeData theme, bool isDark) {
     return Row(
       children: [
-        // Animated Avatar
         Hero(
           tag: 'profile_avatar',
           child: Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF64B5F6), Color(0xFF3F51B5)],
+              gradient: LinearGradient(
+                colors: [
+                  _getRoleColor(),
+                  _getRoleColor().withOpacity(0.7),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF64B5F6).withOpacity(0.4),
+                  color: _getRoleColor().withOpacity(0.4),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -305,14 +483,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             ),
             child: CircleAvatar(
               radius: 35,
-              backgroundColor: const Color(0xFF2A2F45),
+              backgroundColor: theme.cardColor,
               child: Text(
-                name.split(' ').map((e) => e[0]).join('').toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+                _getRoleIcon(),
+                style: TextStyle(fontSize: 24),
               ),
             ),
           ),
@@ -324,87 +498,99 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             children: [
               Text(
                 name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+                style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'Ahilyanagar Police App User',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
-                  fontSize: 14,
+                _getRoleDisplayName(),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: _getRoleColor(),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4CAF50), Color(0xFF66BB6A)],
+                  gradient: LinearGradient(
+                    colors: [
+                      _getRoleColor(),
+                      _getRoleColor().withOpacity(0.7),
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'Verified User',
-                  style: TextStyle(
+                child: Text(
+                  'Verified ${_getRoleDisplayName()}',
+                  style: theme.textTheme.bodySmall?.copyWith(
                     color: Colors.white,
-                    fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
+              if (role != 'citizen' && policeId.isNotEmpty) ...[
+                SizedBox(height: 4),
+                Text(
+                  'ID: $policeId',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
             ],
           ),
         ),
-        // Edit Button
         Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
+            gradient: LinearGradient(
+              colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
             ),
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF3F51B5).withOpacity(0.3),
+                color: theme.colorScheme.primary.withOpacity(0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
           child: IconButton(
+            onPressed: _toggleEdit,
             icon: Icon(
               isEditing ? Icons.save_rounded : Icons.edit_rounded,
               color: Colors.white,
-              size: 20,
             ),
-            onPressed: isEditing ? _saveProfile : _toggleEdit,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildDesktopHeader() {
+  Widget _buildDesktopHeader(ThemeData theme, bool isDark) {
     return Row(
       children: [
-        // Animated Avatar
         Hero(
           tag: 'profile_avatar',
           child: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF64B5F6), Color(0xFF3F51B5)],
+              gradient: LinearGradient(
+                colors: [
+                  _getRoleColor(),
+                  _getRoleColor().withOpacity(0.7),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF64B5F6).withOpacity(0.4),
+                  color: _getRoleColor().withOpacity(0.4),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -412,12 +598,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             ),
             child: CircleAvatar(
               radius: 50,
-              backgroundColor: const Color(0xFF2A2F45),
+              backgroundColor: theme.cardColor,
               child: Text(
-                name.split(' ').map((e) => e[0]).join('').toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+                _getRoleIcon(),
+                style: theme.textTheme.headlineMedium?.copyWith(
                   color: Colors.white,
                 ),
               ),
@@ -431,51 +615,62 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             children: [
               Text(
                 name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
+                style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Ahilyanagar Police App User',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
-                  fontSize: 18,
+                _getRoleDisplayName(),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: _getRoleColor(),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4CAF50), Color(0xFF66BB6A)],
+                  gradient: LinearGradient(
+                    colors: [
+                      _getRoleColor(),
+                      _getRoleColor().withOpacity(0.7),
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Text(
-                  'Verified User',
-                  style: TextStyle(
+                child: Text(
+                  'Verified ${_getRoleDisplayName()}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     color: Colors.white,
-                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
+              if (role != 'citizen' && policeId.isNotEmpty) ...[
+                SizedBox(height: 4),
+                Text(
+                  'ID: $policeId',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white.withOpacity(0.7),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
-        // Edit Button
         Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
+            gradient: LinearGradient(
+              colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
             ),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF3F51B5).withOpacity(0.3),
+                color: theme.colorScheme.primary.withOpacity(0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),
@@ -497,11 +692,32 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   Widget _buildMobileStats() {
     return Row(
       children: [
-        Expanded(child: _buildStatCard('Reports', totalReports, Icons.report_rounded, const Color(0xFF2196F3))),
+        Expanded(
+          child: _buildStatCard(
+            'Reports',
+            totalReports,
+            Icons.report_rounded,
+            const Color(0xFF2196F3),
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: _buildStatCard('Emergency', emergencyCalls, Icons.emergency_rounded, const Color(0xFFE91E63))),
+        Expanded(
+          child: _buildStatCard(
+            'Emergency',
+            emergencyCalls,
+            Icons.emergency_rounded,
+            const Color(0xFFE91E63),
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: _buildStatCard('Safety Tips', safetyTips, Icons.security_rounded, const Color(0xFF4CAF50))),
+        Expanded(
+          child: _buildStatCard(
+            'Safety Tips',
+            safetyTips,
+            Icons.security_rounded,
+            const Color(0xFF4CAF50),
+          ),
+        ),
       ],
     );
   }
@@ -509,11 +725,32 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   Widget _buildDesktopStats() {
     return Row(
       children: [
-        Expanded(child: _buildStatCard('Reports', totalReports, Icons.report_rounded, const Color(0xFF2196F3))),
+        Expanded(
+          child: _buildStatCard(
+            'Reports',
+            totalReports,
+            Icons.report_rounded,
+            const Color(0xFF2196F3),
+          ),
+        ),
         const SizedBox(width: 20),
-        Expanded(child: _buildStatCard('Emergency', emergencyCalls, Icons.emergency_rounded, const Color(0xFFE91E63))),
+        Expanded(
+          child: _buildStatCard(
+            'Emergency',
+            emergencyCalls,
+            Icons.emergency_rounded,
+            const Color(0xFFE91E63),
+          ),
+        ),
         const SizedBox(width: 20),
-        Expanded(child: _buildStatCard('Safety Tips', safetyTips, Icons.security_rounded, const Color(0xFF4CAF50))),
+        Expanded(
+          child: _buildStatCard(
+            'Safety Tips',
+            safetyTips,
+            Icons.security_rounded,
+            const Color(0xFF4CAF50),
+          ),
+        ),
       ],
     );
   }
@@ -522,9 +759,15 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
     final isDesktop = screenWidth > 900;
-    
+
     return Container(
-      padding: EdgeInsets.all(isDesktop ? 24 : isTablet ? 20 : 16),
+      padding: EdgeInsets.all(
+        isDesktop
+            ? 24
+            : isTablet
+            ? 20
+            : 16,
+      ),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(isDesktop ? 20 : 16),
@@ -533,19 +776,43 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(isDesktop ? 12 : isTablet ? 10 : 8),
+            padding: EdgeInsets.all(
+              isDesktop
+                  ? 12
+                  : isTablet
+                  ? 10
+                  : 8,
+            ),
             decoration: BoxDecoration(
               color: color.withOpacity(0.2),
               borderRadius: BorderRadius.circular(isDesktop ? 16 : 12),
             ),
-            child: Icon(icon, color: color, size: isDesktop ? 28 : isTablet ? 24 : 20),
+            child: Icon(
+              icon,
+              color: color,
+              size: isDesktop
+                  ? 28
+                  : isTablet
+                  ? 24
+                  : 20,
+            ),
           ),
-          SizedBox(height: isDesktop ? 12 : isTablet ? 10 : 8),
+          SizedBox(
+            height: isDesktop
+                ? 12
+                : isTablet
+                ? 10
+                : 8,
+          ),
           Text(
             value.toString(),
             style: TextStyle(
               color: color,
-              fontSize: isDesktop ? 28 : isTablet ? 24 : 20,
+              fontSize: isDesktop
+                  ? 28
+                  : isTablet
+                  ? 24
+                  : 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -553,7 +820,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             title,
             style: TextStyle(
               color: color.withOpacity(0.8),
-              fontSize: isDesktop ? 16 : isTablet ? 14 : 12,
+              fontSize: isDesktop
+                  ? 16
+                  : isTablet
+                  ? 14
+                  : 12,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -567,96 +838,124 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     final isTablet = screenWidth > 600;
     final isDesktop = screenWidth > 900;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          // Remove width: double.infinity so it only takes as much space as needed
-          margin: EdgeInsets.symmetric(
-            horizontal: 0,
-            vertical: isDesktop ? 24 : isTablet ? 20 : 16,
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(
+        horizontal: 0,
+        vertical: isDesktop
+            ? 24
+            : isTablet
+            ? 20
+            : 16,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2F45),
+        borderRadius: BorderRadius.circular(isDesktop ? 20 : 16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
-          decoration: BoxDecoration(
-            color: const Color(0xFF2A2F45),
-            borderRadius: BorderRadius.circular(isDesktop ? 20 : 16),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
+        ],
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: TabBar(
+          isScrollable: true,
+          controller: _tabController,
+          onTap: (index) {
+            setState(() {});
+          },
+          indicator: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(isDesktop ? 16 : 12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
+                color: const Color(0xFF3F51B5).withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-          child: TabBar(
-            isScrollable: true,
-            controller: _tabController,
-            onTap: (index) {
-              setState(() {});
-            },
-            indicator: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF3F51B5), Color(0xFF64B5F6)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(isDesktop ? 16 : 12),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF3F51B5).withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white60,
-            labelStyle: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: isDesktop ? 16 : isTablet ? 15 : 13,
-            ),
-            unselectedLabelStyle: TextStyle(
-              fontWeight: FontWeight.w400,
-              fontSize: isDesktop ? 16 : isTablet ? 15 : 13,
-            ),
-            tabs: [
-              Tab(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: Text(
-                    AppLocalizations.of(context)!.personal,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-              Tab(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: Text(
-                    AppLocalizations.of(context)!.settings,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-              Tab(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : isTablet ? 18 : 12),
-                  child: Text(
-                    AppLocalizations.of(context)!.security,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-            ],
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white60,
+          labelStyle: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: isDesktop
+                ? 16
+                : isTablet
+                ? 15
+                : 13,
           ),
+          unselectedLabelStyle: TextStyle(
+            fontWeight: FontWeight.w400,
+            fontSize: isDesktop
+                ? 16
+                : isTablet
+                ? 15
+                : 13,
+          ),
+          tabs: [
+            Tab(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop
+                      ? 24
+                      : isTablet
+                      ? 18
+                      : 12,
+                ),
+                child: Text(
+                  AppLocalizations.of(context)!.personal,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ),
+            Tab(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop
+                      ? 24
+                      : isTablet
+                      ? 18
+                      : 12,
+                ),
+                child: Text(
+                  AppLocalizations.of(context)!.settings,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ),
+            Tab(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop
+                      ? 24
+                      : isTablet
+                      ? 18
+                      : 12,
+                ),
+                child: Text(
+                  AppLocalizations.of(context)!.security,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -720,21 +1019,52 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
         key: _formKey,
         child: Column(
           children: [
-            _buildFormField('Full Name', name, Icons.person_rounded, (val) => name = val ?? ''),
+            _buildFormField(
+              'Full Name',
+              name,
+              Icons.person_rounded,
+              (val) => name = val ?? '',
+            ),
             const SizedBox(height: 16),
-            _buildFormField('Email Address', email, Icons.email_rounded, (val) => email = val ?? ''),
+            _buildFormField(
+              'Email Address',
+              email,
+              Icons.email_rounded,
+              (val) => email = val ?? '',
+            ),
             const SizedBox(height: 16),
-            _buildFormField('Phone Number', phone, Icons.phone_rounded, (val) => phone = val ?? ''),
+            _buildFormField(
+              'Phone Number',
+              phone,
+              Icons.phone_rounded,
+              (val) => phone = val ?? '',
+            ),
             const SizedBox(height: 16),
-            _buildFormField('Address', address, Icons.location_on_rounded, (val) => address = val ?? '', maxLines: 2),
+            _buildFormField(
+              'Address',
+              address,
+              Icons.location_on_rounded,
+              (val) => address = val ?? '',
+              maxLines: 2,
+            ),
             const SizedBox(height: 16),
             _buildDateField(),
             const SizedBox(height: 16),
             _buildDropdownField(),
             const SizedBox(height: 16),
-            _buildFormField('Aadhaar Number', aadhaarNumber, Icons.credit_card_rounded, (val) => aadhaarNumber = val ?? ''),
+            _buildFormField(
+              'Aadhaar Number',
+              aadhaarNumber,
+              Icons.credit_card_rounded,
+              (val) => aadhaarNumber = val ?? '',
+            ),
             const SizedBox(height: 16),
-            _buildFormField('Emergency Contact', emergencyContact, Icons.emergency_rounded, (val) => emergencyContact = val ?? ''),
+            _buildFormField(
+              'Emergency Contact',
+              emergencyContact,
+              Icons.emergency_rounded,
+              (val) => emergencyContact = val ?? '',
+            ),
             const SizedBox(height: 24),
             Row(
               children: [
@@ -759,11 +1089,16 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       child: const Text(
                         'Save Changes',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
@@ -774,12 +1109,21 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                     onPressed: _toggleEdit,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      side: const BorderSide(color: Color(0xFF64B5F6), width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: const BorderSide(
+                        color: Color(0xFF64B5F6),
+                        width: 2,
+                      ),
                     ),
                     child: const Text(
                       'Cancel',
-                      style: TextStyle(color: Color(0xFF64B5F6), fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        color: Color(0xFF64B5F6),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),
@@ -791,7 +1135,13 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildFormField(String label, String initialValue, IconData icon, Function(String?) onSaved, {int maxLines = 1}) {
+  Widget _buildFormField(
+    String label,
+    String initialValue,
+    IconData icon,
+    Function(String?) onSaved, {
+    int maxLines = 1,
+  }) {
     return TextFormField(
       initialValue: initialValue,
       decoration: InputDecoration(
@@ -826,7 +1176,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       onSaved: onSaved,
       validator: (val) {
         if (val == null || val.isEmpty) return 'This field is required';
-        if (label == 'Email Address' && !val.contains('@')) return 'Enter valid email';
+        if (label == 'Email Address' && !val.contains('@'))
+          return 'Enter valid email';
         return null;
       },
     );
@@ -845,7 +1196,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             color: const Color(0xFF64B5F6).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Icon(Icons.calendar_today_rounded, color: Color(0xFF64B5F6), size: 20),
+          child: const Icon(
+            Icons.calendar_today_rounded,
+            color: Color(0xFF64B5F6),
+            size: 20,
+          ),
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -872,7 +1227,12 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     return DropdownButtonFormField<String>(
       value: gender.isNotEmpty ? gender : null,
       items: ['Male', 'Female', 'Other']
-          .map((g) => DropdownMenuItem(value: g, child: Text(g, style: const TextStyle(color: Colors.white))))
+          .map(
+            (g) => DropdownMenuItem(
+              value: g,
+              child: Text(g, style: const TextStyle(color: Colors.white)),
+            ),
+          )
           .toList(),
       onChanged: (val) => setState(() => gender = val ?? ''),
       decoration: InputDecoration(
@@ -884,7 +1244,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             color: const Color(0xFF64B5F6).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Icon(Icons.wc_rounded, color: Color(0xFF64B5F6), size: 20),
+          child: const Icon(
+            Icons.wc_rounded,
+            color: Color(0xFF64B5F6),
+            size: 20,
+          ),
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -911,18 +1275,57 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     return Column(
       children: [
         _buildInfoSection('Personal Information', [
-          _buildInfoTile(Icons.person_rounded, 'Full Name', name, const Color(0xFF64B5F6)),
-          _buildInfoTile(Icons.email_rounded, 'Email Address', email, const Color(0xFF4CAF50)),
-          _buildInfoTile(Icons.phone_rounded, 'Phone Number', phone, const Color(0xFF2196F3)),
-          _buildInfoTile(Icons.location_on_rounded, 'Address', address, const Color(0xFFFF9800)),
-          _buildInfoTile(Icons.calendar_today_rounded, 'Date of Birth', 
-              dob != null ? "${dob!.day}/${dob!.month}/${dob!.year}" : '-', const Color(0xFF9C27B0)),
-          _buildInfoTile(Icons.wc_rounded, 'Gender', gender, const Color(0xFFE91E63)),
+          _buildInfoTile(
+            Icons.person_rounded,
+            'Full Name',
+            name,
+            const Color(0xFF64B5F6),
+          ),
+          _buildInfoTile(
+            Icons.email_rounded,
+            'Email Address',
+            email,
+            const Color(0xFF4CAF50),
+          ),
+          _buildInfoTile(
+            Icons.phone_rounded,
+            'Phone Number',
+            phone,
+            const Color(0xFF2196F3),
+          ),
+          _buildInfoTile(
+            Icons.location_on_rounded,
+            'Address',
+            address,
+            const Color(0xFFFF9800),
+          ),
+          _buildInfoTile(
+            Icons.calendar_today_rounded,
+            'Date of Birth',
+            dob != null ? "${dob!.day}/${dob!.month}/${dob!.year}" : '-',
+            const Color(0xFF9C27B0),
+          ),
+          _buildInfoTile(
+            Icons.wc_rounded,
+            'Gender',
+            gender,
+            const Color(0xFFE91E63),
+          ),
         ]),
         const SizedBox(height: 16),
         _buildInfoSection('Identity Information', [
-          _buildInfoTile(Icons.credit_card_rounded, 'Aadhaar Number', aadhaarNumber, const Color(0xFF607D8B)),
-          _buildInfoTile(Icons.emergency_rounded, 'Emergency Contact', emergencyContact, const Color(0xFFE91E63)),
+          _buildInfoTile(
+            Icons.credit_card_rounded,
+            'Aadhaar Number',
+            aadhaarNumber,
+            const Color(0xFF607D8B),
+          ),
+          _buildInfoTile(
+            Icons.emergency_rounded,
+            'Emergency Contact',
+            emergencyContact,
+            const Color(0xFFE91E63),
+          ),
         ]),
         const SizedBox(height: 24),
         Container(
@@ -948,7 +1351,9 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.transparent,
               shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1003,7 +1408,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                     color: const Color(0xFF64B5F6).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.info_rounded, color: Color(0xFF64B5F6), size: 20),
+                  child: const Icon(
+                    Icons.info_rounded,
+                    color: Color(0xFF64B5F6),
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -1023,7 +1432,12 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildInfoTile(IconData icon, String title, String value, Color color) {
+  Widget _buildInfoTile(
+    IconData icon,
+    String title,
+    String value,
+    Color color,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       padding: const EdgeInsets.all(16),
@@ -1063,6 +1477,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -1073,7 +1489,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   }
 
   Widget _buildSettingsTab() {
-    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final languageProvider = Provider.of<LanguageProvider>(
+      context,
+      listen: false,
+    );
     final currentLanguage = languageProvider.currentLanguageName;
 
     return FadeTransition(
@@ -1084,22 +1503,25 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              _buildSettingsSection(AppLocalizations.of(context)!.notifications, [
-                _buildSwitchTile(
-                  Icons.notifications_rounded,
-                  AppLocalizations.of(context)!.notifications,
-                  'Receive app notifications',
-                  notificationsEnabled,
-                  (value) => setState(() => notificationsEnabled = value),
-                ),
-                _buildSwitchTile(
-                  Icons.emergency_rounded,
-                  AppLocalizations.of(context)!.emergencyAlerts,
-                  'Get emergency notifications',
-                  emergencyAlerts,
-                  (value) => setState(() => emergencyAlerts = value),
-                ),
-              ]),
+              _buildSettingsSection(
+                AppLocalizations.of(context)!.notifications,
+                [
+                  _buildSwitchTile(
+                    Icons.notifications_rounded,
+                    AppLocalizations.of(context)!.notifications,
+                    'Receive app notifications',
+                    notificationsEnabled,
+                    (value) => setState(() => notificationsEnabled = value),
+                  ),
+                  _buildSwitchTile(
+                    Icons.emergency_rounded,
+                    AppLocalizations.of(context)!.emergencyAlerts,
+                    'Get emergency notifications',
+                    emergencyAlerts,
+                    (value) => setState(() => emergencyAlerts = value),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
               _buildSettingsSection('Location & Privacy', [
                 _buildSwitchTile(
@@ -1108,7 +1530,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                   'Allow location access',
                   locationEnabled,
                   (value) => setState(() => locationEnabled = value),
-                  ),
+                ),
                 _buildSwitchTile(
                   Icons.sync_rounded,
                   AppLocalizations.of(context)!.autoSync,
@@ -1120,12 +1542,28 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               const SizedBox(height: 16),
               _buildSettingsSection('App Preferences', [
                 _buildLanguageDropdown(languageProvider, currentLanguage),
-                _buildDropdownTile(
-                  Icons.palette_rounded,
-                  AppLocalizations.of(context)!.theme,
-                  theme,
-                  ['Dark', 'Light', 'Auto'],
-                  (value) => setState(() => theme = value!),
+                Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, _) {
+                    return _buildDropdownTile(
+                      Icons.palette_rounded,
+                      AppLocalizations.of(context)!.theme,
+                      themeProvider.themeMode == ThemeMode.dark
+                          ? 'Dark'
+                          : themeProvider.themeMode == ThemeMode.light
+                          ? 'Light'
+                          : 'Auto',
+                      ['Dark', 'Light', 'Auto'],
+                      (value) {
+                        if (value == 'Dark') {
+                          themeProvider.setTheme(ThemeMode.dark);
+                        } else if (value == 'Light') {
+                          themeProvider.setTheme(ThemeMode.light);
+                        } else {
+                          themeProvider.setTheme(ThemeMode.system);
+                        }
+                      },
+                    );
+                  },
                 ),
               ]),
               const SizedBox(height: 16),
@@ -1251,7 +1689,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                     color: const Color(0xFF64B5F6).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.settings_rounded, color: Color(0xFF64B5F6), size: 20),
+                  child: const Icon(
+                    Icons.settings_rounded,
+                    color: Color(0xFF64B5F6),
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -1271,7 +1713,13 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildSwitchTile(IconData icon, String title, String subtitle, bool value, Function(bool) onChanged) {
+  Widget _buildSwitchTile(
+    IconData icon,
+    String title,
+    String subtitle,
+    bool value,
+    Function(bool) onChanged,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       padding: const EdgeInsets.all(16),
@@ -1324,7 +1772,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildLanguageDropdown(LanguageProvider languageProvider, String currentLanguage) {
+  Widget _buildLanguageDropdown(
+    LanguageProvider languageProvider,
+    String currentLanguage,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       padding: const EdgeInsets.all(16),
@@ -1343,7 +1794,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 color: const Color(0xFF64B5F6).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.language_rounded, color: Color(0xFF64B5F6), size: 20),
+              child: const Icon(
+                Icons.language_rounded,
+                color: Color(0xFF64B5F6),
+                size: 20,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -1375,7 +1830,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     );
   }
 
-  void _showLanguageDialog(BuildContext context, LanguageProvider languageProvider) {
+  void _showLanguageDialog(
+    BuildContext context,
+    LanguageProvider languageProvider,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1383,7 +1841,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           AppLocalizations.of(context)!.selectLanguage,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1393,7 +1854,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 lang['name']!,
                 style: const TextStyle(color: Colors.white),
               ),
-              trailing: languageProvider.currentLocale.languageCode == lang['code']
+              trailing:
+                  languageProvider.currentLocale.languageCode == lang['code']
                   ? const Icon(Icons.check_rounded, color: Color(0xFF64B5F6))
                   : null,
               onTap: () {
@@ -1415,7 +1877,9 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                     ),
                     backgroundColor: const Color(0xFF4CAF50),
                     behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     margin: const EdgeInsets.all(16),
                   ),
                 );
@@ -1436,7 +1900,13 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildDropdownTile(IconData icon, String title, String value, List<String> options, Function(String?) onChanged) {
+  Widget _buildDropdownTile(
+    IconData icon,
+    String title,
+    String value,
+    List<String> options,
+    Function(String?) onChanged,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       padding: const EdgeInsets.all(16),
@@ -1483,18 +1953,29 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
             onChanged: onChanged,
             dropdownColor: const Color(0xFF2A2F45),
             style: const TextStyle(color: Colors.white),
-            icon: const Icon(Icons.arrow_drop_down_rounded, color: Color(0xFF64B5F6)),
-            items: options.map((option) => DropdownMenuItem(
-              value: option,
-              child: Text(option),
-            )).toList(),
+            icon: const Icon(
+              Icons.arrow_drop_down_rounded,
+              color: Color(0xFF64B5F6),
+            ),
+            items: options
+                .map(
+                  (option) =>
+                      DropdownMenuItem(value: option, child: Text(option)),
+                )
+                .toList(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionTile(IconData icon, String title, String subtitle, VoidCallback onTap, {bool isDestructive = false}) {
+  Widget _buildActionTile(
+    IconData icon,
+    String title,
+    String subtitle,
+    VoidCallback onTap, {
+    bool isDestructive = false,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       child: Material(
@@ -1505,12 +1986,12 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isDestructive 
+              color: isDestructive
                   ? const Color(0xFFE91E63).withOpacity(0.05)
                   : Colors.white.withOpacity(0.02),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isDestructive 
+                color: isDestructive
                     ? const Color(0xFFE91E63).withOpacity(0.2)
                     : Colors.white.withOpacity(0.05),
               ),
@@ -1520,15 +2001,17 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: isDestructive 
+                    color: isDestructive
                         ? const Color(0xFFE91E63).withOpacity(0.1)
                         : const Color(0xFF64B5F6).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
-                    icon, 
-                    color: isDestructive ? const Color(0xFFE91E63) : const Color(0xFF64B5F6), 
-                    size: 20
+                    icon,
+                    color: isDestructive
+                        ? const Color(0xFFE91E63)
+                        : const Color(0xFF64B5F6),
+                    size: 20,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -1539,7 +2022,9 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                       Text(
                         title,
                         style: TextStyle(
-                          color: isDestructive ? const Color(0xFFE91E63) : Colors.white,
+                          color: isDestructive
+                              ? const Color(0xFFE91E63)
+                              : Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1581,12 +2066,19 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 color: const Color(0xFFE91E63).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.delete_forever_rounded, color: Color(0xFFE91E63), size: 24),
+              child: const Icon(
+                Icons.delete_forever_rounded,
+                color: Color(0xFFE91E63),
+                size: 24,
+              ),
             ),
             const SizedBox(width: 12),
             const Text(
               'Delete Account',
-              style: TextStyle(color: Color(0xFFE91E63), fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Color(0xFFE91E63),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -1605,11 +2097,15 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _showSuccessSnackBar(AppLocalizations.of(context)!.accountDeletionFeature);
+              _showSuccessSnackBar(
+                AppLocalizations.of(context)!.accountDeletionFeature,
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFE91E63),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: const Text('Delete'),
           ),
